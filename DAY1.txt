@@ -1,0 +1,360 @@
+Day1: (Arrays)
+
+1.	Find the duplicate in an array of N integers. 
+{i}  Find the Duplicate Number
+Given an array nums containing n + 1 integers where each integer is between 1 and n (inclusive), prove that at least one duplicate number must exist. Assume that there is only one duplicate number, find the duplicate one.
+
+Example 1:
+
+Input: [1,3,4,2,2]
+Output: 2
+Example 2:
+
+Input: [3,1,3,4,2]
+Output: 3
+Note:
+
+You must not modify the array (assume the array is read only).
+You must use only constant, O(1) extra space.
+Your runtime complexity should be less than O(n2).
+There is only one duplicate number in the array, but it could be repeated more than once.
+
+SOLUTION-->
+BRUTE FORCE (O(N*2),O(1))---> FOR OVER FOR LOOP AND CHECKING     
+USING HASH MAP --> O(N), O(N)
+LITTLE OPTIMIZED VERSION(O(N*LOG(N)),O(1)) ---> SORTING AND CHECKING INDEX BY INDEX
+
+class Solution {
+public:
+    int findDuplicate(vector<int>& nums) {
+        sort(nums.begin(),nums.end());
+        for(int i=0;i<nums.size()-1;i++){
+            if(nums[i] == nums[i+1]){
+                return nums[i];
+            }
+        }
+        return 0;
+    }
+};
+
+{ii} Find All Duplicates in an Array
+Given an array of integers, 1 ≤ a[i] ≤ n (n = size of array), some elements appear twice and others appear once.
+
+Find all the elements that appear twice in this array.
+
+Could you do it without extra space and in O(n) runtime?
+
+Example:
+Input:
+[4,3,2,7,8,2,3,1]
+
+Output:
+[2,3]
+
+SOLUTION-->
+USE HASHMAP ---O(N), O(N) -----
+
+OPTIMIZED VERSION(O(N),O(1))-->(IDEA --> NUMBERS SHOULD BE IN THE ORDER OF LENGTH EX: LENGTH=8 THEN NUMBERS WOULD BE {0-7} ).
+WORKING ON THE ARRAY ITSELF AND EACH TIME ONE ITEM APPEARS WE MAKE IT INTO -SIGN AND CHECK IF THE VALUE > 0, SO FOR SECOND TIME IT WILL
+BECAUSE OF < 0.
+
+class Solution {
+public:
+    vector<int> findDuplicates(vector<int>& nums) {
+        vector<int> r;
+        for(int i:nums){
+            i = abs(i);
+            nums[i-1] = -nums[i-1];
+            if(nums[i-1] > 0){
+                r.push_back(i);
+            }
+        }
+        return r;
+    }
+};
+(0R)
+    for (i = 0; i < size; i++) { 
+        if (arr[abs(arr[i]) - 1] > 0) 
+            arr[abs(arr[i]) - 1] = -arr[abs(arr[i]) - 1]; 
+        else
+            cout << abs(arr[i]) << "\n"; 
+    } 
+
+ONE MORE BUT IT FAILS ALSO :
+
+   vector<int> dup(vector<int>& nums){
+	for(int i = 0;i<n;i++){
+	nums[nums[i]%n]+=n;
+	}
+	for(int i=0;i<n;i++){
+	if((nums[i]/n) > 1){
+	r.push_back(i);
+	}
+	return r;
+	}
+    }
+
+2.	Sort an array of 0’s 1’s 2’s without using extra space or sorting algo 
+
+BRUTE FORCE => SORT OR USE EXTRA SPACE
+OPTIMIZED => COUNT THE OCCURENCES OF EACH IN SEPEARTE VARIABLE AND THEN ADD IT THE THE ARRAY ITSELF 
+---- O(N) , O(1) ----
+
+SOLUTION:
+int main(){
+int n,n0,n1,n2,i;
+n0=n1=n2=0;
+cout<<"enter the size:";
+cin>>n;
+int a[n];
+cout<<"enter the elements:";
+for(i=0;i<n;i++)cin>>a[i];
+
+for(i=0;i<n;i++){
+    switch(a[i]){
+        case 0: n0++; break;
+        case 1: n1++; break;
+        case 2: n2++; break;} }
+        i=0;
+while(n0>0){
+    a[i++]=0;
+    n0--;
+} 
+while(n1>0){
+    a[i++]=1;
+    n1--;
+}
+while(n2>0){
+    a[i++]=2;
+    n2--;
+}
+cout<<"the elements in sorted order:";
+for(int i=0;i<n;i++){
+    cout<<a[i]<<" ";
+}
+ 
+    return 0;
+}
+
+3.	Repeat and Missing Number 
+
+{i} Missing Number
+Given an array containing n distinct numbers taken from 0, 1, 2, ..., n, find the one that is missing from the array.
+
+Example 1:
+
+Input: [3,0,1]
+Output: 2
+Example 2:
+
+Input: [9,6,4,2,3,5,7,0,1]
+Output: 8
+Note:
+Your algorithm should run in linear runtime complexity. Could you implement it using only constant extra space complexity?
+
+SOLUTION : I HASHING WHICH TAKES O(N), O(N)
+           II UNIVERSAL SUM O(N), O(1) --> BUT IT CAN LEAD TO INTEGER OVERFLOW ERROR
+
+class Solution {
+public:
+    int missingNumber(vector<int>& nums) {
+        int sum = 0;
+        int n = nums.size();
+        for(int i=0;i < n;i++){
+            sum+=nums[i];
+        }
+        int total = (n*(n+1))/2;
+        return total - sum;
+    }
+};
+
+    III BEST SOLUTION--> XOR OF ALL ELEMENTS OF THE ARRAY WITH XOR OF ALL THE N ELEMENTS :
+     
+ int missingNumber(vector<int>& nums) {
+        int x1 = nums[0],x2 = 1;
+        for(int i=1;i<nums.size();i++){
+            x1^=nums[i];
+        }
+        for(int i=2;i<nums.size()+1;i++){
+            x2^=i;
+        }
+        return x1^x2;
+    }
+
+
+{ii} REPEATING AND THE MISSING NUMBER IN THE ARRAY
+   EITHER WE STORE IN THE HASH MAP HENCE THE COMPLEXITIES WILL BE O(N), O(N)
+   OPTIMAL WOULD BE O(N), O(1)
+
+   EITHER CHOOSE FROM THE ABOVE TWO AS GIVEN
+   OR FOLLOW THIS SOLUTION:
+
+void printTwoElements(int arr[], int size) 
+{ 
+    int i; 
+    cout << " The repeating element is "; 
+  
+    for (i = 0; i < size; i++) { 
+        if (arr[abs(arr[i]) - 1] > 0) 
+            arr[abs(arr[i]) - 1] = -arr[abs(arr[i]) - 1]; 
+        else
+            cout << abs(arr[i]) << "\n"; 
+    } 
+  
+    cout << "and the missing element is "; 
+    for (i = 0; i < size; i++) { 
+        if (arr[i] > 0) 
+            cout << (i + 1); 
+    } 
+} 
+
+4.	Merge two sorted Arrays without extra space 
+------- O(M*N), O(1)  --------
+ SOLUTION:
+// Merge ar1[] and ar2[] with O(1) extra space 
+void merge(int ar1[], int ar2[], int m, int n) 
+{ 
+    // Iterate through all elements of ar2[] starting from 
+    // the last element 
+    for (int i=n-1; i>=0; i--) 
+    { 
+        /* Find the smallest element greater than ar2[i]. Move all 
+           elements one position ahead till the smallest greater 
+           element is not found */
+        int j, last = ar1[m-1]; 
+        for (j=m-2; j >= 0 && ar1[j] > ar2[i]; j--) 
+            ar1[j+1] = ar1[j]; 
+  
+        // If there was a greater element 
+        if (j != m-2 || last > ar2[i]) 
+        { 
+            ar1[j+1] = ar2[i]; 
+            ar2[i] = last; 
+        } 
+    } 
+}
+
+5.	Kadane’s Algorithm 
+Given an integer array nums, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.
+
+Example:
+
+Input: [-2,1,-3,4,-1,2,1,-5,4],
+Output: 6
+Explanation: [4,-1,2,1] has the largest sum = 6.
+Follow up:
+
+If you have figured out the O(n) solution, try coding another solution using the divide and conquer approach, which is more subtle.
+
+SOLUTION:
+ BRUTE FORCE : O(N^2), O(1)
+ OPTIMAL : O(N), O(1)
+
+int maxSubArray(vector<int>& nums) {
+        int su = nums[0];
+        int cu = nums[0];
+        for(int i=1;i<nums.size();i++){
+            cu = max(cu+nums[i],nums[i]);
+            su = max(su,cu);
+        }
+        return su;
+    }
+
+6.	Merge Overlapping Subintervals 
+{i} MERGE INTERVALS
+Given a collection of intervals, merge all overlapping intervals.
+
+Example 1:
+
+Input: [[1,3],[2,6],[8,10],[15,18]]
+Output: [[1,6],[8,10],[15,18]]
+Explanation: Since intervals [1,3] and [2,6] overlaps, merge them into [1,6].
+Example 2:
+
+Input: [[1,4],[4,5]]
+Output: [[1,5]]
+Explanation: Intervals [1,4] and [4,5] are considered overlapping
+
+SOLUTION:
+----> O(NLOGN) , O(1) ------->
+ vector<vector<int>> merge(vector<vector<int>>& intervals) {
+        // SORTING so that order of the intervals should be maintained in the ascending order
+        //O(nlogn)
+        sort(intervals.begin(),intervals.end());
+        
+        vector<vector<int>> ans;
+        if(intervals.size() == 0)
+            return ans;
+        
+        // storing the initial starting and ending values in the variables f , s 
+        int f = intervals[0][0];
+        int s = intervals[0][1];
+        
+        for(int i=0;i<intervals.size();i++){
+           // storing the next values in the f2 and s2
+            int f2 = intervals[i][0];
+            int s2 = intervals[i][1];
+         // checking two condition:
+         // i) first's second element should be greater or equal to the second's first
+         // ii) second's second should be greater than first's second
+         // i)' else store the interval in the result vector and reset the f and s to f2, s2.
+            
+            if(f2 <= s){
+                if(s < s2)
+                    s = s2;
+            }
+            else{
+                ans.push_back({f,s});
+                f = f2;
+                s = s2;
+            }
+        }
+        ans.push_back({f,s});
+        return ans;
+    }
+
+{ii} INTERVAL LIST INTERSECTIONS( FIND INTERSECTION IN THE SORTED LIST )
+Given two lists of closed intervals, each list of intervals is pairwise disjoint and in sorted order.
+
+Return the intersection of these two interval lists.
+
+(Formally, a closed interval [a, b] (with a <= b) denotes the set of real numbers x with a <= x <= b.  The intersection of two closed intervals is a set of real numbers that is either empty, or can be represented as a closed interval.  For example, the intersection of [1, 3] and [2, 4] is [2, 3].)
+
+Input: A = [[0,2],[5,10],[13,23],[24,25]], B = [[1,5],[8,12],[15,24],[25,26]]
+Output: [[1,2],[5,5],[8,10],[15,23],[24,24],[25,25]]
+
+SOLUTION: 
+----> O(M+N), O(M+N) ----------
+vector<vector<int>> intervalIntersection(vector<vector<int>>& A, vector<vector<int>>& B) {
+        if(A.size() == 0)
+            return {};
+        if(B.size() == 0)
+            return {};
+        
+        vector<vector<int>> result;
+        
+         int i = 0, j = 0;
+        while( i < A.size() && j < B.size()){
+            vector<int> a = A[i];
+            vector<int> b = B[j];
+            // (b is ahead) if b's firstgreater than a's second point then increment i
+            if(a[1] < b[0]) i++;
+            //(a is ahead) if a's first greater than b's second then increment j
+            else if(b[1] < a[0]) j++;
+                   // overlap
+            else{
+                // take the overlap point that is max{a0,b0} & min{a1,b1}
+                int start = max(a[0],b[0]);
+                int end = min(a[1],b[1]);
+                result.push_back({start,end});
+                
+                // (a's second is smaller) b's span is their
+                if(a[1] < b[1]) i++;
+                //(b's second is smaller) a's span is their
+                else if(a[1] >= b[1]) j++;
+            }
+        }
+        return result;
+    }
+
+
