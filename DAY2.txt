@@ -1,0 +1,611 @@
+Day2: (Arrays)
+
+1.	Set Matrix Zeros 
+Given a m x n matrix, if an element is 0, set its entire row and column to 0. Do it in-place.
+Example 1:
+Input: 
+[
+  [1,1,1],
+  [1,0,1],
+  [1,1,1]
+]
+Output: 
+[
+  [1,0,1],
+  [0,0,0],
+  [1,0,1]
+]
+Example 2:
+
+Input: 
+[
+  [0,1,2,0],
+  [3,4,5,2],
+  [1,3,1,5]
+]
+Output: 
+[
+  [0,0,0,0],
+  [0,4,5,0],
+  [0,3,1,0]
+]
+Follow up:
+
+A straight forward solution using O(mn) space is probably a bad idea.
+A simple improvement uses O(m + n) space, but still not the best solution.
+Could you devise a constant space solution?
+
+SOLUTION: 
+-------O(M*N), O(M+N)-----------
+CREATING TWO SEPERATE VECTORS FOR STORING THE INDEXES INITAIALLY THEN WHENEVER WE ENCOUNTER WE WILL MAKE ALL THE CORRESPONDING ROWS AND COLUMNS AS ZEROES.
+
+ void setZeroes(vector<vector<int>>& matrix) {
+        int m = matrix.size();
+        int n = matrix[0].size();
+        //two vectors for storing the indexes wherever we will find the zeroes intially
+        vector<bool> row(m);
+        vector<bool> col(n);
+        
+        for(int i=0;i<m;i++)
+            for(int j=0;j<n;j++){
+                if(matrix[i][j] == 0){
+                    row[i] = true;
+                    col[j] = true;
+                }
+            }
+        
+        for(int i=0;i<m;i++)
+            for(int j=0;j<n;j++){
+                if(row[i] || col[j]){
+                    matrix[i][j] = 0;
+                }
+            }
+                
+    }
+
+--------O(M*N), O(1) -----------------
+
+class Solution {
+public:
+    void setZeroes(vector<vector<int>>& matrix) {
+        int m = matrix.size();
+        int n = matrix[0].size();
+        if( m == 0 || n == 0)
+            return;
+        
+        int r0 = 0, c0 = 0;
+        //checking if 0 exists at 0th row or column
+        for(int i = 0;i < m;i++)
+            if(matrix[i][0] == 0)
+                r0 = 1;
+        for(int i = 0; i<n;i++)
+            if(matrix[0][i] == 0)
+                c0 = 1; 
+//CHECKING IF AT ANY POINT == 0  FROM 1ST ROW AND 1ST COL ONWARDS,THEN SETTING THE MATRIX INITIAL i, j as zero
+       
+        for(int i=1;i<m;i++)
+            for(int j=1;j<n;j++){
+                if(matrix[i][j] == 0){
+                    matrix[0][j] = 0; // storing 0 at columns
+                    matrix[i][0] = 0; // storing 0 at rows
+                }
+            }
+        
+//checking if 1ST row has zero then making all corresponding all elements in the col as zeroes
+        for(int i=1;i<m;i++){
+            if(matrix[i][0] == 0){
+                for(int j=1;j<n;j++){
+                    matrix[i][j] = 0;
+                }
+            }
+        }
+//checking if 1ST col has zero then making all corresponding all elements in the row as zeroes       
+    for(int j = 1;j<n;j++){
+        if(matrix[0][j] == 0){
+            for(int i=1;i<m;i++){
+                matrix[i][j] = 0;
+            }
+        }
+    }
+        // if r0 is 1 that means 0th row has zero elements then making all the corresponding values as 0
+        if(r0){
+            for(int i=0;i<m;i++)
+                matrix[i][0] = 0;
+        }
+        // if c0 is 1 that means 0th col has zero elements then making all the corresponding values as 0
+        if(c0){
+            for(int i=0;i<n;i++)
+                matrix[0][i] = 0;
+        }     
+    }
+};
+
+2.	Pascal Triangle 
+Given a non-negative integer numRows, generate the first numRows of Pascal's triangle.
+
+
+In Pascal's triangle, each number is the sum of the two numbers directly above it.
+
+Example:
+
+Input: 5
+Output:
+[
+     [1],
+    [1,1],
+   [1,2,1],
+  [1,3,3,1],
+ [1,4,6,4,1]
+]
+
+SOLUTION:
+-----O(N^2) ------------
+class Solution {
+public:
+    vector<vector<int>> generate(int numRows) {
+        //vector for storing the result
+        vector<vector<int>> triangle;
+        // invalid cases
+        if(numRows <=0)
+            return triangle;
+        // for the first row we will insert it before hand
+        triangle.push_back({1});
+        
+        // for the rest of the rows
+        for(int i=1;i<numRows;i++){
+            //initially curr will have 1 as next number will start from the 1
+            vector<int> curr = {1};
+            //one more vector for storing the prev triangle value for the further addition
+            vector<int> prev = triangle[i-1];
+            // if satisfies loop then we will calculate for each of the next values
+            for(int j=0;j < prev.size() - 1; j++){
+                // pushing next value which will we the addition of the previous vector two values
+                curr.push_back(prev[j]+prev[j+1]);
+            }
+     // at last we have to store the number 1 as from 2 number itself every number will start and end by 1
+            curr.push_back(1);
+            // finally storing the value in the triangle vector
+            triangle.push_back(curr);
+        }
+        // returning the list of pascal values for a given  number
+        return triangle;
+    }
+};
+
+{ii} PASCAL TRIANGLE II
+Given a non-negative index k where k ≤ 33, return the kth index row of the Pascal's triangle.
+
+Note that the row index starts from 0.
+Example:
+
+Input: 3
+Output: [1,3,3,1]
+Follow up:
+
+Could you optimize your algorithm to use only O(k) extra space?
+
+SOLUTION:
+------O(N^2), O(N) --------
+
+vector<int> getRow(int numRows) {
+        
+        vector<int> result(numRows+1,0);
+        result[0] = 1;
+        
+        for(int i=0;i<=numRows;i++){
+            for(int j = i; j>0;j--){
+                result[j] = result[j] + result[j-1];
+            }
+        }
+        return result;
+    }
+
+
+3.	Next Permutation 
+Implement next permutation, which rearranges numbers into the lexicographically next greater permutation of numbers.
+
+If such arrangement is not possible, it must rearrange it as the lowest possible order (ie, sorted in ascending order).
+
+The replacement must be in-place and use only constant extra memory.
+
+Here are some examples. Inputs are in the left-hand column and its corresponding outputs are in the right-hand column.
+
+1,2,3 → 1,3,2
+3,2,1 → 1,2,3
+1,1,5 → 1,5,1
+
+SOLUTION:
+----BRUTE FORCE ---> O(N!), O(N) ----> GENERATE ALL THE PERMUTATIONS THEN CHECK FOR THE NEXT GREATER
+----OPTIMIZED ----- O(N) , O(1) ----
+
+ void nextPermutation(vector<int>& nums) {
+        // pointing i to the second last value
+        int i = nums.size() - 2;
+        // checking for our point of interest i.e., the next greater value
+        while(i>=0 && nums[i] >= nums[i+1])
+            i--;
+        //if more number i.e., next permutation is there then will make use 
+        if(i>=0){
+            int j = nums.size()-1;
+            while(j>=0 && nums[j] <= nums[i]){
+                j--;
+            }
+            swap(nums[i], nums[j]);
+        }
+        // if the number itself was the last permutation then will we simply return the reverse of the number
+            reverse(nums.begin() +i+1, nums.end());
+    }
+
+4.	Inversion of Array (Using Merge Sort) 
+Formally speaking, two elements a[i] and a[j] form an inversion if a[i] > a[j] and i < j
+
+Example:
+
+Input: arr[] = {8, 4, 2, 1}
+Output: 6
+
+Explanation: Given array has six inversions:
+(8,4), (4,2),(8,2), (8,1), (4,1), (2,1).
+
+
+Input: arr[] = {3, 1, 2}
+Output: 2
+
+Explanation: Given array has two inversions:
+(3, 1), (3, 2) 
+
+SOLUTION: 
+---- BRUTE FORCE --- O(N^2), O(1) -----
+int getInvCount(int arr[], int n) 
+{ 
+    int inv_count = 0; 
+    for (int i = 0; i < n - 1; i++) 
+        for (int j = i + 1; j < n; j++) 
+            if (arr[i] > arr[j]) 
+                inv_count++; 
+  
+    return inv_count; 
+} 
+
+---OPTIMIZED ----- O(NLOGN), O(1) ----
+(USING MERGE SORT)
+{{{{{[
+/* This function sorts the input array and returns the  
+number of inversions in the array */
+int mergeSort(int arr[], int array_size) 
+{ 
+    int temp[array_size]; 
+    return _mergeSort(arr, temp, 0, array_size - 1); 
+} 
+  
+/* An auxiliary recursive function that sorts the input array and  
+returns the number of inversions in the array. */
+int _mergeSort(int arr[], int temp[], int left, int right) 
+{ 
+    int mid, inv_count = 0; 
+    if (right > left) { 
+        /* Divide the array into two parts and  
+        call _mergeSortAndCountInv()  
+        for each of the parts */
+        mid = (right + left) / 2; 
+  
+        /* Inversion count will be sum of  
+        inversions in left-part, right-part  
+        and number of inversions in merging */
+        inv_count += _mergeSort(arr, temp, left, mid); 
+        inv_count += _mergeSort(arr, temp, mid + 1, right); 
+  
+        /*Merge the two parts*/
+        inv_count += merge(arr, temp, left, mid + 1, right); 
+    } 
+    return inv_count; 
+} 
+  
+/* This funt merges two sorted arrays  
+and returns inversion count in the arrays.*/
+int merge(int arr[], int temp[], int left, 
+          int mid, int right) 
+{ 
+    int i, j, k; 
+    int inv_count = 0; 
+  
+    i = left; /* i is index for left subarray*/
+    j = mid; /* j is index for right subarray*/
+    k = left; /* k is index for resultant merged subarray*/
+    while ((i <= mid - 1) && (j <= right)) { 
+        if (arr[i] <= arr[j]) { 
+            temp[k++] = arr[i++]; 
+        } 
+        else { 
+            temp[k++] = arr[j++]; 
+  
+            /* this is tricky -- see above  
+            explanation/diagram for merge()*/
+            inv_count = inv_count + (mid - i); 
+        } 
+    } 
+  
+    /* Copy the remaining elements of left subarray  
+(if there are any) to temp*/
+    while (i <= mid - 1) 
+        temp[k++] = arr[i++]; 
+  
+    /* Copy the remaining elements of right subarray  
+(if there are any) to temp*/
+    while (j <= right) 
+        temp[k++] = arr[j++]; 
+  
+    /*Copy back the merged elements to original array*/
+    for (i = left; i <= right; i++) 
+        arr[i] = temp[i]; 
+  
+    return inv_count; 
+} 
+  
+// Driver code 
+int main() 
+{ 
+    int arr[] = { 1, 20, 6, 4, 5 }; 
+    int n = sizeof(arr) / sizeof(arr[0]); 
+    int ans = mergeSort(arr, n); 
+    cout << " Number of inversions are " << ans; 
+    return 0; 
+} 
+     ]}}}}}}
+
+5.	Stock Buy and Sell 
+Say you have an array for which the ith element is the price of a given stock on day i.
+
+If you were only permitted to complete at most one transaction (i.e., buy one and sell one share of the stock), design an algorithm to find the maximum profit.
+
+Note that you cannot sell a stock before you buy one.
+
+Example 1:
+
+Input: [7,1,5,3,6,4]
+Output: 5
+Explanation: Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5.
+             Not 7-1 = 6, as selling price needs to be larger than buying price.
+Example 2:
+
+Input: [7,6,4,3,1]
+Output: 0
+Explanation: In this case, no transaction is done, i.e. max profit = 0.
+
+SOLUTION: 
+--BRUTE FORCE----O(N^2), O(1) -------
+ int maxProfit(int prices[]) {
+        int maxprofit = 0;
+        for (int i = 0; i < prices.length - 1; i++) {
+            for (int j = i + 1; j < prices.length; j++) {
+                int profit = prices[j] - prices[i];
+                if (profit > maxprofit)
+                    maxprofit = profit;
+            }
+        }
+        return maxprofit;
+    }
+
+--OPTIMIZED  ----- O(N), O(1) ------
+//similiar to kadane's algorithm(modified)
+    int maxProfit(vector<int>& prices) {
+        // checking if no prices are there then return the 0
+        if(prices.size() == 0)
+            return 0;
+        // curr initailized to INT_MAX and maxpro to 0
+        int curr=INT_MAX, maxpro = 0;
+        // curr is having the slowest value possible
+     // maxpro is having the maximum profit after buying and selling stock
+        for(int i=0;i<prices.size();i++){
+            curr = min(curr, prices[i]);
+            maxpro = max(maxpro, prices[i] - curr);
+        }
+       return maxpro;
+        
+    }
+
+{ii} Best Time to Buy and Sell Stock II
+Say you have an array prices for which the ith element is the price of a given stock on day i.
+
+Design an algorithm to find the maximum profit. You may complete as many transactions as you like (i.e., buy one and sell one share of the stock multiple times).
+
+Note: You may not engage in multiple transactions at the same time (i.e., you must sell the stock before you buy again).
+
+Example 1:
+
+Input: [7,1,5,3,6,4]
+Output: 7
+Explanation: Buy on day 2 (price = 1) and sell on day 3 (price = 5), profit = 5-1 = 4.
+             Then buy on day 4 (price = 3) and sell on day 5 (price = 6), profit = 6-3 = 3.
+Example 2:
+
+Input: [1,2,3,4,5]
+Output: 4
+Explanation: Buy on day 1 (price = 1) and sell on day 5 (price = 5), profit = 5-1 = 4.
+             Note that you cannot buy on day 1, buy on day 2 and sell them later, as you are
+             engaging multiple transactions at the same time. You must sell before buying again.
+Example 3:
+
+Input: [7,6,4,3,1]
+Output: 0
+Explanation: In this case, no transaction is done, i.e. max profit = 0.
+ 
+
+Constraints:
+
+1 <= prices.length <= 3 * 10 ^ 4
+0 <= prices[i] <= 10 ^ 4
+
+SOLUTION:
+----BRUTE FORCE ----O(N^2), O(N) ------
+-----OPTIMIZED -----O(N), O(1) --------
+ int maxProfit(vector<int>& prices) {
+        if(prices.size() == 0)
+            return 0;
+        int pro = 0;
+        for(int i=1; i<prices.size();i++){
+            if(prices[i] > prices[i-1]){
+                pro+=prices[i] - prices[i-1];
+            }
+        }
+        return pro;
+    }
+
+6. TRANSPOSE OF A MATRIX
+Given a matrix A, return the transpose of A.
+
+The transpose of a matrix is the matrix flipped over it's main diagonal, switching the row and column indices of the matrix.
+Example 1:
+
+Input: [[1,2,3],[4,5,6],[7,8,9]]
+Output: [[1,4,7],[2,5,8],[3,6,9]]
+Example 2:
+
+Input: [[1,2,3],[4,5,6]]
+Output: [[1,4],[2,5],[3,6]]
+
+SOLUTION:
+-----O(M*N), O(M*N) -----
+vector<vector<int>> transpose(vector<vector<int>>& A) {
+        int r = A.size();
+        int c = A[0].size();
+        // new vector of b.row = a.col & b.col = a.row
+        vector<vector<int>> B(c, vector<int>(r,0));
+        
+        for(int i=0;i<r;i++){
+            for(int j=0;j<c;j++){
+                B[j][i] = A[i][j]; // logic
+            }
+        }  
+        return B;
+    }
+
+7. Rotate IMAGE
+You are given an n x n 2D matrix representing an image.
+
+Rotate the image by 90 degrees (clockwise).
+
+Note:
+
+You have to rotate the image in-place, which means you have to modify the input 2D matrix directly. DO NOT allocate another 2D matrix and do the rotation.
+
+Example 1:
+
+Given input matrix = 
+[
+  [1,2,3],
+  [4,5,6],
+  [7,8,9]
+],
+
+rotate the input matrix in-place such that it becomes:
+[
+  [7,4,1],
+  [8,5,2],
+  [9,6,3]
+]
+Example 2:
+
+Given input matrix =
+[
+  [ 5, 1, 9,11],
+  [ 2, 4, 8,10],
+  [13, 3, 6, 7],
+  [15,14,12,16]
+], 
+
+rotate the input matrix in-place such that it becomes:
+[
+  [15,13, 2, 5],
+  [14, 3, 4, 1],
+  [12, 6, 8, 9],
+  [16, 7,10,11]
+]
+
+SOLUTION: 
+-----O(M*N), O(1) -----------
+(IT FAILS FOR NON-SQUARES I.E., RECTANGLES)
+// FIRST WE TAKE TRANSPOSE THEN REVERSE THE ROW ELEMENTS.
+ void rotate(vector<vector<int>>& matrix) {
+        //swapping meaning for getting the transpose of a matrix
+        for(int i=0;i<matrix.size();i++)
+            for(int j=0;j<i;j++)
+                swap(matrix[i][j],matrix[j][i]);
+        // then reverse each of the row in the matrix (& for direct reference)
+        for(auto& i: matrix)
+            reverse(i.begin(),i.end());
+    }
+8. FLIPPING AN IMAGE
+Given a binary matrix A, we want to flip the image horizontally, then invert it, and return the resulting image.
+
+To flip an image horizontally means that each row of the image is reversed.  For example, flipping [1, 1, 0] horizontally results in [0, 1, 1].
+
+To invert an image means that each 0 is replaced by 1, and each 1 is replaced by 0. For example, inverting [0, 1, 1] results in [1, 0, 0].
+
+Example 1:
+
+Input: [[1,1,0],[1,0,1],[0,0,0]]
+Output: [[1,0,0],[0,1,0],[1,1,1]]
+Explanation: First reverse each row: [[0,1,1],[1,0,1],[0,0,0]].
+Then, invert the image: [[1,0,0],[0,1,0],[1,1,1]]
+
+SOLUTION:
+------O(M*N), O(1)----------
+vector<vector<int>> flipAndInvertImage(vector<vector<int>>& A) {
+       if(A.size() == 0 || A[0].size() == 0)
+           return {};
+        for(auto& i: A)
+            reverse(i.begin(),i.end());
+        for(int i=0;i<A.size();i++)
+            for(int j=0;j<A[0].size();j++){
+                if(A[i][j] == 0){
+                    A[i][j] = 1;
+                }
+                else
+                    A[i][j] = 0;
+            }
+                
+        return A;
+    }
+9. ROTATE ARRAY 
+Given an array, rotate the array to the right by k steps, where k is non-negative.
+
+Follow up:
+
+Try to come up as many solutions as you can, there are at least 3 different ways to solve this problem.
+Could you do it in-place with O(1) extra space?
+ 
+
+Example 1:
+
+Input: nums = [1,2,3,4,5,6,7], k = 3
+Output: [5,6,7,1,2,3,4]
+Explanation:
+rotate 1 steps to the right: [7,1,2,3,4,5,6]
+rotate 2 steps to the right: [6,7,1,2,3,4,5]
+rotate 3 steps to the right: [5,6,7,1,2,3,4]
+Example 2:
+
+Input: nums = [-1,-100,3,99], k = 2
+Output: [3,99,-1,-100]
+Explanation: 
+rotate 1 steps to the right: [99,-1,-100,3]
+rotate 2 steps to the right: [3,99,-1,-100]
+ 
+
+Constraints:
+
+1 <= nums.length <= 2 * 10^4
+It's guaranteed that nums[i] fits in a 32 bit-signed integer.
+k >= 0
+
+SOLUTION:
+-----BRUTE FORCE ---- O(N*K) , O(1) --------
+-----OPTIMIZED -------O(N) , O(1) -------
+
+void rotate(vector<int>& nums, int k) {
+        k=k%nums.size();
+        reverse(nums.begin(),nums.end());
+        reverse(nums.begin(),nums.begin()+k);
+        reverse(nums.begin()+k,nums.end());
+    }
