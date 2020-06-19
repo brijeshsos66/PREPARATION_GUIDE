@@ -1,0 +1,460 @@
+Day4: (Hashing)
+
+1. 2 SUM PROBLEM
+Given an array of integers, return indices of the two numbers such that they add up to a specific target.
+
+You may assume that each input would have exactly one solution, and you may not use the same element twice.
+
+Example:
+
+Given nums = [2, 7, 11, 15], target = 9,
+
+Because nums[0] + nums[1] = 2 + 7 = 9,
+return [0, 1].
+
+SOLUTION:----- WE NEED TO RETURN THE INDEX POSITIONS IF IT WAS FOR THE DETECT IF IT IS POSSIBLE THEN FOR THE (II) & (III) -- SPACE COMPLEXITY WOULD BE -- O(1)
+(I)----BRUTE FORCE ---- TWO FOR LOOPS --- O(N^2),O(1)---
+(II)----- DOING SORTING THEN MAKING USE OF THE TWO POINTER APPROACH --- O(NLOGN), O(N)-----
+    vector<int> twoSum(vector<int>& nums, int target) {
+        vector<int> ans;
+        vector<int> v=nums;
+        sort(nums.begin(),nums.end());
+        int l=0, r=nums.size()-1;
+        while(l<r){
+            if(nums[l]+nums[r]==target){
+                break;
+            }
+            else if(nums[l]+nums[r]>target){
+                r--;
+            }
+            else if(nums[l]+nums[r]<target){
+                l++;
+            }
+        }
+                 
+for(int i=0;i<v.size();i++)
+        {
+        	if(v[i]==nums[l]||v[i]==nums[r])
+        	ans.push_back(i);
+        }
+        sort(ans.begin(),ans.end());       
+
+        
+        return ans;
+    }
+
+(III)---- IF THE ARRAY IS SORTED WE CAN MAKE USE OF THE TWO POINTER APPROACH--- O(N), O(N)-----
+(IV)----- MAKING USE OF THE HASH MAP I.E., UNORDERED_SET ----O(N), O(N) ------
+WE WILL CHECK EACH ELEMENT IF IT IS NOT THEIR THEN STORING IT IN THE HASH SET.
+vector<int> twoSum(vector<int>& nums, int target) {
+        vector<int> res;
+        unordered_set<int> s;
+        int l=0,r=0;
+        for(int i:nums){
+            if(s.find(i)!=s.end()){
+                l = i;
+                r = target - l;
+                break;
+            }
+            s.insert(target - i);        
+        }
+        
+        for(int i=0;i<nums.size();i++){
+            if(nums[i] == l || nums[i] == r){
+                res.push_back(i);
+            }
+        }
+        return res;
+        
+    }
+
+2. 3 SUM PROBLEM
+Given an array nums of n integers, are there elements a, b, c in nums such that a + b + c = 0? Find all unique triplets in the array which gives the sum of zero.
+
+Note:
+
+The solution set must not contain duplicate triplets.
+
+Example:
+
+Given array nums = [-1, 0, 1, 2, -1, -4],
+
+A solution set is:
+[
+  [-1, 0, 1],
+  [-1, -1, 2]
+]
+
+SOLUTION:
+BRUTE FORCE ---- O(N^3), O(N) -------
+OPTIMIZED SOLUTION ---------
+-----O(N^2), O(N) --------
+
+    vector<vector<int>> threeSum(vector<int>& nums) {
+//storing vector of vector
+        vector<vector<int>> ans;
+// corner cases of empty of size < 3
+        if(nums.empty() || nums.size() < 3)
+            return ans;
+//sorting the nums vector-- as we are using the 3 pointer approach --similiar to 2 pointer
+        sort(nums.begin(),nums.end());
+//nums.size() - 2 as we are making use of 3 pointer
+        for(int i = 0; i<(nums.size())-2; i++){
+// i == 0 for initial value at 0th pos and 2nd condition for >0 and for till we don't encounter
+//basically for not taking into account the duplicate values
+            if(i==0 || (i>0 && nums[i]!=nums[i-1])){
+                
+                int sum = 0-nums[i]; // 0 as we want whole value equal to 0 and it can vary, interviewer can twist the value instead of sum = 0
+                int low = i+1; // next index value after nums[i]
+                int high = nums.size() - 1;// pointing the high to the last index value
+                    
+                while(low < high){
+//we subtracted nums[i] value from the sum before now checking if with other two addition equal to sum
+                    if(nums[low]+nums[high] == sum){
+// if == sum then storing the triplet in the ans vector
+                        ans.push_back(vector<int>{nums[i],nums[low],nums[high]});
+// checking for duplicates if it is their then increment low value
+                        while(low<high && nums[low] == nums[low+1])
+                            low++;
+// checking for the dupicates if it their then increment high value
+                        while(low<high && nums[high] == nums[high-1])
+                            high--;
+// after done incrementing both values
+                        low++;
+                        high--;
+                    }
+// if sum is greater than sum, then decrementing the high value
+                    else if(nums[low]+nums[high] > sum)
+                        high--;
+// if sum is lower than sum, then incrementing the low value
+                    else
+                        low++;
+                }
+            }
+        }
+        //returing thr vector of vector ans
+        return ans;
+    }
+};
+
+3. 4 SUM PROBLEM
+Given an array nums of n integers and an integer target, are there elements a, b, c, and d in nums such that a + b + c + d = target? Find all unique quadruplets in the array which gives the sum of target.
+
+Note:
+
+The solution set must not contain duplicate quadruplets.
+
+Example:
+
+Given array nums = [1, 0, -1, 0, -2, 2], and target = 0.
+
+A solution set is:
+[
+  [-1,  0, 0, 1],
+  [-2, -1, 1, 2],
+  [-2,  0, 0, 2]
+]
+
+SOLUTION:
+-----BRUTE FORCE ---- O(N^4),O(N)------
+------OPTIMAL -------O(N^3),O(N)------
+class Solution {
+public:
+    Solution(){
+        ios::sync_with_stdio(false);
+        std::cin.tie(nullptr);
+        std::cout.tie(nullptr);
+    }
+    vector<vector<int>> fourSum(vector<int>& nums, int target) {
+    vector<vector<int>> res;
+    if(nums.empty() || nums.size() < 4)
+        return res;
+    sort(nums.begin(),nums.end());
+    for (unsigned int i=0; i<nums.size()-3; i++) {
+        if (i>0 && nums[i]==nums[i-1])
+            continue; // avoid duplication for i
+        for (unsigned int j=i+1; j<nums.size()-2; j++) {
+            if (j>i+1 && nums[j]==nums[j-1])
+                continue; // avoid duplication for j
+            int l = j+1, r = nums.size()-1;
+            while (l < r) {
+                int s = nums[i]+nums[j]+nums[l]+nums[r];
+                if (s > target)
+                    r--;
+                else if (s < target)
+                    l++;
+                else {
+                    res.push_back({nums[i], nums[j], nums[l], nums[r]});
+                    while (l < r && nums[l]==nums[l+1])
+                        l++; // avoid duplication for l
+                    while (l < r && nums[r]==nums[r-1])
+                        r--; // avoid duplication for r
+                    l++; r--;
+                }
+            }
+        }
+     }
+     return res;
+}
+};
+
+4. LONGEST COMMON SUBSEQUENCE(DP)
+Given two strings text1 and text2, return the length of their longest common subsequence.
+A subsequence of a string is a new string generated from the original string with some characters(can be none) deleted without changing the
+relative order of the remaining characters. (eg, "ace" is a subsequence of "abcde" while "aec" is not). A common subsequence of two strings 
+is a subsequence that is common to both strings.
+If there is no common subsequence, return 0. 
+Example 1:
+
+Input: text1 = "abcde", text2 = "ace" 
+Output: 3  
+Explanation: The longest common subsequence is "ace" and its length is 3.
+Example 2:
+
+Input: text1 = "abc", text2 = "abc"
+Output: 3
+Explanation: The longest common subsequence is "abc" and its length is 3.
+Example 3:
+
+Input: text1 = "abc", text2 = "def"
+Output: 0
+Explanation: There is no such common subsequence, so the result is 0.
+ 
+
+Constraints:
+
+1 <= text1.length <= 1000
+1 <= text2.length <= 1000
+The input strings consist of lowercase English characters only. 
+SOLUTION:
+----OPTIMIZED SOLUTION---- O(M*N),O(M*N) --------
+int longestCommonSubsequence(string text1, string text2) {
+        int m = text1.length();
+        int n = text2.length();
+        if(m==0 || n==0)
+            return 0;
+        vector<vector<int>> dp(m+1,vector<int>(n+1));
+        
+        for(int i =0;i<=m;i++){
+            for(int j=0;j<=n;j++){
+                if(i==0 || j==0)
+                    dp[i][j] = 0;
+                else if(text1[i-1] == text2[j-1])
+                    dp[i][j] = dp[i-1][j-1]+1;
+                else
+                    dp[i][j] = max(dp[i-1][j],dp[i][j-1]);
+            }
+        }
+        return dp[m][n];
+    }
+
+5. Longest Subarray with 0 sum 
+Given an array of integers, find the length of the longest sub-array with sum equals to 0.
+Examples :
+
+Input: arr[] = {15, -2, 2, -8, 1, 7, 10, 23};
+Output: 5
+Explanation: The longest sub-array with 
+elements summing up-to 0 is {-2, 2, -8, 1, 7}
+
+Input: arr[] = {1, 2, 3}
+Output: 0
+Explanation:There is no subarray with 0 sum
+
+Input:  arr[] = {1, 0, 3}
+Output:  1
+Explanation: The longest sub-array with 
+elements summing up-to 0 is {0}
+
+SOLUTION:
+---NAIVE APPROACH ---- O(N^2),O(1)------
+// Returns length of the largest subarray with 0 sum 
+int maxLen(int arr[], int n) 
+{ 
+    int max_len = 0; // Initialize result 
+  
+    // Pick a starting point 
+    for (int i = 0; i < n; i++) { 
+        // Initialize currr_sum for every starting point 
+        int curr_sum = 0; 
+  
+        // try all subarrays starting with 'i' 
+        for (int j = i; j < n; j++) { 
+            curr_sum += arr[j]; 
+  
+            // If curr_sum becomes 0, then update max_len 
+            // if required 
+            if (curr_sum == 0) 
+                max_len = max(max_len, j - i + 1); 
+        } 
+    } 
+    return max_len; 
+} 
+
+OPTIMIZED SOLUTION ----- O(N), O(N) -------
+Algorithm:
+Create a extra space, an array of length n (prefix), a variable (sum) , length (max_len) and a hash map (hm) to store sum-index pair as a key-value pair
+Move along the input array from starting to the end
+For every index update the value of sum = sum + array[i]
+Check for every index, if the current sum is present in the hash map or not
+If present update the value of max_len to maximum of difference of two indices (current index and index in the hash-map) and max_len
+Else Put the value (sum) in the hash map, with the index as a key-value pair.
+Print the maximum length (max_len)
+
+int maxLen(int arr[], int n)
+{
+	unordered_map<int,int> m;
+	int sum=0,max_len=0;
+	for(int i=0;i<n;i++){
+		sum+=arr[i];
+		// initialize value 
+		if(arr[i] == 0 && max_len == 0)
+			max_len = 1;
+		// if we get the sum upon adding the elements 
+		if(sum==0)
+			max_len = i+1;
+		if(m.find(sum)!=m.end())
+			max_len = max(max_len,i-m[sum]);
+		m[sum] = i;
+          }
+         return max_len;
+  }
+
+6.	Count number of subarrays with given XOR(this clears a lot of problems) 
+Given an array of integers arr[] and a number m, count the number of subarrays having XOR of their elements as m.
+
+Examples:
+
+Input : arr[] = {4, 2, 2, 6, 4}, m = 6
+Output : 4
+Explanation : The subarrays having XOR of 
+              their elements as 6 are {4, 2}, 
+              {4, 2, 2, 6, 4}, {2, 2, 6},
+               and {6}
+
+Input : arr[] = {5, 6, 7, 8, 9}, m = 5
+Output : 2
+Explanation : The subarrays having XOR of
+              their elements as 2 are {5}
+              and {5, 6, 7, 8, 9}
+
+SOLUTION:
+-----NAIVE APPROACH ------ O(N^2), O(1) -------
+// Simple function that returns count of subarrays 
+// of arr with XOR value equals to m 
+long long subarrayXor(int arr[], int n, int m) 
+{ 
+    long long ans = 0; // Initialize ans 
+  
+    // Pick starting point i of subarrays 
+    for (int i = 0; i < n; i++) { 
+        int xorSum = 0; // Store XOR of current subarray 
+  
+        // Pick ending point j of subarray for each i 
+        for (int j = i; j < n; j++) { 
+            // calculate xorSum 
+            xorSum = xorSum ^ arr[j]; 
+  
+            // If xorSum is equal to given value, 
+            // increase ans by 1. 
+            if (xorSum == m) 
+                ans++; 
+        } 
+    } 
+    return ans; 
+} 
+
+OPTIMIZED SOLUTION -------O(N), O(N) ------
+(UNDER CONSTRUCTION)
+// Returns count of subarrays of arr with XOR 
+// value equals to m 
+long long subarrayXor(int arr[], int n, int m) 
+{ 
+    long long ans = 0; // Initialize answer to be returned 
+  
+    // Create a prefix xor-sum array such that 
+    // xorArr[i] has value equal to XOR 
+    // of all elements in arr[0 ..... i] 
+    int* xorArr = new int[n]; 
+  
+    // Create map that stores number of prefix array 
+    // elements corresponding to a XOR value 
+    unordered_map<int, int> mp; 
+  
+    // Initialize first element of prefix array 
+    xorArr[0] = arr[0]; 
+  
+    // Computing the prefix array. 
+    for (int i = 1; i < n; i++) 
+        xorArr[i] = xorArr[i - 1] ^ arr[i]; 
+  
+    // Calculate the answer 
+    for (int i = 0; i < n; i++) { 
+        // Find XOR of current prefix with m. 
+        int tmp = m ^ xorArr[i]; 
+  
+        // If above XOR exists in map, then there 
+        // is another previous prefix with same 
+        // XOR, i.e., there is a subarray ending 
+        // at i with XOR equal to m. 
+        ans = ans + ((long long)mp[tmp]); 
+  
+        // If this subarray has XOR equal to m itself. 
+        if (xorArr[i] == m) 
+            ans++; 
+  
+        // Add the XOR of this subarray to the map 
+        mp[xorArr[i]]++; 
+    } 
+  
+    // Return total count of subarrays having XOR of 
+    // elements as given value m 
+    return ans; 
+} 
+
+7. Longest substring without repeat ( SIMILIAR TO THE SLIDING WINDOW PROBLEM)
+Given a string, find the length of the longest substring without repeating characters.
+
+Example 1:
+
+Input: "abcabcbb"
+Output: 3 
+Explanation: The answer is "abc", with the length of 3. 
+Example 2:
+
+Input: "bbbbb"
+Output: 1
+Explanation: The answer is "b", with the length of 1.
+Example 3:
+
+Input: "pwwkew"
+Output: 3
+Explanation: The answer is "wke", with the length of 3. 
+             Note that the answer must be a substring, "pwke" is a subsequence and not a substring.
+
+SOLUTION :
+OPTIMIZED SOLUTION ------ O(N), O(N) --------
+
+int lengthOfLongestSubstring(string s) 
+	{
+		unordered_set<char> set;
+    
+		int i = 0, j = 0, n = s.size(), ans = 0;
+    
+		while( i<n && j<n)
+		{
+			if(set.find(s[j]) == set.end()) //If the character does not in the set
+			{
+				set.insert(s[j++]); //Insert the character in set and update the j counter
+				ans = max(ans, j-i); //Check if the new distance is longer than the current answer
+			}
+			else
+			{
+				set.erase(s[i++]); 
+				/*If character does exist in the set, ie. it is a repeated character, 
+				we update the left side counter i, and continue with the checking for substring. */
+			}
+		}
+    
+		return ans;
+	}
