@@ -1,0 +1,240 @@
+Day5: (LinkedList) 
+
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+
+
+1.	Reverse a LinkedList 
+Reverse a singly linked list.
+
+Example:
+
+Input: 1->2->3->4->5->NULL
+Output: 5->4->3->2->1->NULL
+Follow up:
+
+A linked list can be reversed either iteratively or recursively. Could you implement both?
+
+(i) RECURSIVE WAY --- O(N), O(N) == (BECAUSE OF STACK FRAMEWORK)
+ ListNode* reverseList(ListNode* head) {
+        if(head == NULL || head->next == NULL)
+            return head;
+        ListNode* rev = reverseList(head->next);
+        head->next->next = head;
+        head->next = NULL;
+        return rev;
+    }
+(ii) ITERATIVE WAY --- O(N), O(1) ----MAKING USE OF THE THREE POINTERS
+ListNode* reverseList(ListNode* head) {
+     //initializing the three pointers
+    ListNode* prev = NULL;
+     ListNode* curr = head;
+     ListNode* nex = NULL;
+        while(curr!=NULL){
+           // save next in nex
+            nex = curr->next;
+            // reverse the link
+            curr->next = prev;
+            // advancing the prev and curr
+            prev = curr;
+            curr = nex;
+        }
+        return prev;
+    }
+2.	Find middle of LinkedList 
+Given a non-empty, singly linked list with head node head, return a middle node of linked list.
+
+If there are two middle nodes, return the second middle node.
+
+ 
+
+Example 1:
+
+Input: [1,2,3,4,5]
+Output: Node 3 from this list (Serialization: [3,4,5])
+The returned node has value 3.  (The judge's serialization of this node is [3,4,5]).
+Note that we returned a ListNode object ans, such that:
+ans.val = 3, ans.next.val = 4, ans.next.next.val = 5, and ans.next.next.next = NULL.
+Example 2:
+
+Input: [1,2,3,4,5,6]
+Output: Node 4 from this list (Serialization: [4,5,6])
+Since the list has two middle nodes with values 3 and 4, we return the second one.
+ 
+
+Note:
+
+The number of nodes in the given list will be between 1 and 100.
+
+SOLUTION:
+(i)---BRUTE FORCE APPROACH --- O(N), O(N) --- 
+Intuition and Algorithm
+
+Put every node into an array A in order. Then the middle node is just A[A.length // 2], since we can retrieve each node by index.
+class Solution {
+public:
+    ListNode* middleNode(ListNode* head) {
+        vector<ListNode*> A = {head};
+        while (A.back()->next != NULL)
+            A.push_back(A.back()->next);
+        return A[A.size() / 2];
+    }
+};
+(ii)---- OPTIMIZED SOLUTION --- O(N), O(1) -- USING SLOW AND FAST OR FIRST AND LAST POINTER APPROACH
+ class Solution {
+public:
+   ListNode* middleNode(ListNode* head) {
+        ListNode* slow = head;
+        ListNode* fast = head;
+        while(fast && fast->next){
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        return slow;
+    }
+};
+
+3.	Merge two sorted Linked List 
+Merge two sorted linked lists and return it as a new sorted list. The new list should be made by splicing together the nodes of the first two lists.
+
+Example:
+
+Input: 1->2->4, 1->3->4
+Output: 1->1->2->3->4->4
+
+SOLUTION: 
+ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+        // Using dummy node and pointing it to the -1 to get saved from the empty node condition 
+        ListNode* dummy = new ListNode(-1);
+        ListNode* last = dummy;  // last will be pointing to the dummy node
+        // making use of the similiar merge function from the merge sort
+        while(l1!=NULL && l2!=NULL){
+            if(l1->val < l2->val){
+                last->next = l1;
+                l1=l1->next;
+            }
+            else{
+                last->next = l2;
+                l2 = l2->next;
+            }
+            last = last->next;
+        }
+        // if l1 is not empty
+        if(l1!=NULL){
+            last->next = l1;
+        }
+        //if l2 is not empty
+        if(l2!=NULL){
+            last->next = l2;
+        }
+        //returing dummy next as dummy will be having -1 and from its next point itself will be have the merged sorted list 
+        return dummy->next;
+    }
+
+4.	Remove N-th node from back of LinkedList 
+Given a linked list, remove the n-th node from the end of list and return its head.
+
+Example:
+
+Given linked list: 1->2->3->4->5, and n = 2.
+
+After removing the second node from the end, the linked list becomes 1->2->3->5.
+Note:
+
+Given n will always be valid.
+
+Follow up:
+
+Could you do this in one pass?
+
+SOLUTION:
+ ListNode* removeNthFromEnd(ListNode* head, int n) {
+        ListNode* dummy = new ListNode(0);
+        dummy->next = head;
+        
+        ListNode* slow = dummy;
+        ListNode* fast = dummy;
+        
+        for(int i =1;i<=n+1;i++){
+            fast=fast->next;
+        }
+        while(fast!=NULL){
+            slow = slow->next;
+            fast = fast->next;
+        }
+        //this deletes the nth node from the back
+        slow->next = slow->next->next;
+        return dummy->next;
+    }
+
+5.	Delete a given Node when a node is given. (0(1) solution)
+Write a function to delete a node (except the tail) in a singly linked list, given only access to that node.
+
+Given linked list -- head = [4,5,1,9], which looks like following: 
+
+Example 1:
+
+Input: head = [4,5,1,9], node = 5
+Output: [4,1,9]
+Explanation: You are given the second node with value 5, the linked list should become 4 -> 1 -> 9 after calling your function.
+Example 2:
+
+Input: head = [4,5,1,9], node = 1
+Output: [4,5,9]
+Explanation: You are given the third node with value 1, the linked list should become 4 -> 5 -> 9 after calling your function.
+ 
+
+Note:
+
+The linked list will have at least two elements.
+All of the nodes' values will be unique.
+The given node will not be the tail and it will always be a valid node of the linked list.
+Do not return anything from your function.
+
+SOLUTION:
+void deleteNode(ListNode* node) {
+        node->val = node->next->val; // taking next val in node
+        node->next = node->next->next; // node's next value pointing to the next->next of the node i.e., it means if ll s is : 4->5->1->9 and node given is 5, then ll is 4->5->5->9(1st line does) then 4->5->9(2nd line)
+    }
+
+6.	Add two numbers as LinkedList  
+You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order and each of their nodes contain a single digit. Add the two numbers and return it as a linked list.
+
+You may assume the two numbers do not contain any leading zero, except the number 0 itself.
+
+Example:
+
+Input: (2 -> 4 -> 3) + (5 -> 6 -> 4)
+Output: 7 -> 0 -> 8
+Explanation: 342 + 465 = 807.
+
+SOLUTION:
+-----O(M+N), O(MAX(M,N)) ------
+
+ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+        ListNode* dummy = new ListNode(0);
+        ListNode* end = dummy;
+        int carry = 0;
+        while(l1||l2||carry){
+            if(l1){
+                carry+=l1->val;
+                l1=l1->next;
+            }
+            if(l2){
+                carry+=l2->val;
+                l2=l2->next;
+            }
+            end->next = new ListNode(carry%10);
+            end = end->next;
+            carry/=10;
+        }
+        return dummy->next;
+    }

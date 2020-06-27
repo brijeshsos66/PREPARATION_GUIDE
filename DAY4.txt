@@ -364,7 +364,7 @@ long long subarrayXor(int arr[], int n, int m)
     return ans; 
 } 
 
-OPTIMIZED SOLUTION -------O(N), O(N) ------
+OPTIMIZED SOLUTION -------O(N), O(N) ------(TO BE UNDERSTOOD LATER)
 (UNDER CONSTRUCTION)
 // Returns count of subarrays of arr with XOR 
 // value equals to m 
