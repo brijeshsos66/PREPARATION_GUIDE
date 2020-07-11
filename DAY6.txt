@@ -1,0 +1,423 @@
+Day6: (Linked List 2)
+
+1.	Find intersection point of Y LinkedList 
+Write a program to find the node at which the intersection of two singly linked lists begins.
+EXAMPLE 1:
+Input: intersectVal = 8, listA = [4,1,8,4,5], listB = [5,0,1,8,4,5], skipA = 2, skipB = 3
+Output: Reference of the node with value = 8
+Input Explanation: The intersected node's value is 8 (note that this must not be 0 if the two lists intersect). From the head of A, it reads as [4,1,8,4,5]. From the head of B, it reads as [5,0,1,8,4,5]. There are 2 nodes before the intersected node in A; There are 3 nodes before the intersected node in B
+EXAMPLE 2:
+Input: intersectVal = 0, listA = [2,6,4], listB = [1,5], skipA = 3, skipB = 2
+Output: null
+Input Explanation: From the head of A, it reads as [2,6,4]. From the head of B, it reads as [1,5]. Since the two lists do not intersect, intersectVal must be 0, while skipA and skipB can be arbitrary values.
+Explanation: The two lists do not intersect, so return null.
+
+SOLUTION:
+Approach 1: Brute Force
+For each node ai in list A, traverse the entire list B and check if any node in list B coincides with ai.
+
+Complexity Analysis
+
+Time complexity : O(mn)O(mn).
+
+Space complexity : O(1)O(1).
+
+
+Approach 2: Hash Table
+Traverse list A and store the address / reference to each node in a hash set. Then check every node bi in list B: if bi appears in the hash set, then bi is the intersection node.
+
+Complexity Analysis
+
+Time complexity : O(m+n)O(m+n).
+
+Space complexity : O(m)O(m) or O(n)O(n).
+
+-------APPROACH 3 ---- O(M+N), O(1) ------
+Maintain two pointers pA and pB initialized at the head of A and B, respectively. Then let them both traverse through the lists, one node at a time.
+When pA reaches the end of a list, then redirect it to the head of B (yes, B, that's right.); similarly when pB reaches the end of a list, redirect it the head of A.
+If at any point pA meets pB, then pA/pB is the intersection node.
+To see why the above trick would work, consider the following two lists: A = {1,3,5,7,9,11} and B = {2,4,9,11}, which are intersected at node '9'. Since B.length (=4) < A.length (=6), pB would reach the end of the merged list first, because pBpB traverses exactly 2 nodes less than pA does. By redirecting pBpB to head A, and pA to head B, 
+we now ask pBpB to travel exactly 2 more nodes than pApA would. So in the second iteration, they are guaranteed to reach the intersection node at the same time.
+If two lists have intersection, then their last nodes must be the same one. So when pA/pB reaches the end of a list, record the last element of A/B respectively. If the two last elements are not the same one, then the two lists have no intersections.
+
+ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        if(headA == NULL || headB == NULL)
+            return NULL;
+        ListNode* a = headA;
+        ListNode* b = headB;
+        
+        while(a!=b){
+            if(a == NULL){
+                a=headB;
+            }else{
+                a = a->next;
+            }
+            
+            if(b == NULL){
+                b = headA;
+            }else{
+                b = b->next;
+            }
+        }
+        return a;
+    }
+
+2.	Check if a LinkedList is palindrome or not. 
+Given a singly linked list, determine if it is a palindrome.
+
+Example 1:
+
+Input: 1->2
+Output: false
+Example 2:
+
+Input: 1->2->2->1
+Output: true
+Follow up:
+Could you do it in O(n) time and O(1) space?
+
+SOLUTION:
+----O(N), O(1) --------
+ // THIS WILL REVERSE THE LINKED LIST AND RETURN THE POINTER THE LAST VALUE
+    ListNode* reversed(ListNode* head){
+        ListNode* prev = NULL;
+        ListNode* curr = head;
+        ListNode* next = NULL;
+        while(curr!=NULL){
+            next = curr->next;
+            curr->next = prev;
+            prev = curr;
+            curr = next;
+        }
+        return prev;
+    }
+    bool isPalindrome(ListNode* head) {
+        if(head == NULL || head->next == NULL)
+            return true;
+        ListNode* slow = head;
+        ListNode* fast = head;
+        
+        // FINDING THE MIDDLE OF THE LINKED LIST
+        while(fast && fast->next){
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        // SLOW WILL CALL REVERSE WHICH WILL REVERSE THE LIST FROM THE MIDDLE 
+        // EXAMPLE :  1->2->2->1   ---->  1->2->1->2  FAST WILL POINT TO INITIAL HEAD AND SLOW WILL POINT TO 
+        // MIDDLE THEN COMPARE EACH VALUE. 
+        slow = reversed(slow);
+        fast = head;
+        
+        while(slow!=NULL){
+            if(slow->val!=fast->val){
+                return false;
+            }
+            slow = slow->next;
+            fast = fast->next;
+        }
+        return true;
+    }
+3.	Reverse a LinkedList in groups. (HARD)
+Given a linked list, reverse the nodes of a linked list k at a time and return its modified list.
+
+k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes in the end should remain as it is.
+
+Example:
+
+Given this linked list: 1->2->3->4->5
+
+For k = 2, you should return: 2->1->4->3->5
+
+For k = 3, you should return: 3->2->1->4->5
+
+Note:
+
+Only constant extra memory is allowed.
+You may not alter the values in the list's nodes, only nodes itself may be changed.
+
+SOLUTION:
+
+ ListNode* reverseKGroup(ListNode* head, int k) {
+        ListNode* current = head;
+        int count = 0;
+        while(current!=NULL && count!=k){
+            ++count;
+            current = current->next;
+        }
+        if(count == k){
+            ListNode* next =NULL, *prev = NULL; current = head;
+            while(count){
+                next = current->next;
+                current->next = prev;
+                prev = current;
+                current = next;
+                count--;
+            }
+            if(next!=NULL)
+                head->next = reverseKGroup(next,k);
+            return prev;
+            
+        }
+        return head;
+        
+    }
+
+4.	Detect a cycle and removing loop(two different questions and same concept)
+(I) Linked List Cycle
+Given a linked list, determine if it has a cycle in it.
+
+To represent a cycle in the given linked list, we use an integer pos which represents the position (0-indexed) in the linked list where tail connects to. If pos is -1, then there is no cycle in the linked list.
+
+ 
+
+Example 1:
+
+Input: head = [3,2,0,-4], pos = 1 (3->2->0->-4->(cycle)2->0->-4 ....)
+Output: true
+Explanation: There is a cycle in the linked list, where tail connects to the second node.
+
+Example 2:
+Input: head = [1], pos = -1
+Output: false
+Explanation: There is no cycle in the linked list.
+
+SOLUTION:
+----O(N), O(1) ------
+bool hasCycle(ListNode *head) {
+        if(head == NULL)
+            return false;
+        ListNode* slow = head;
+        ListNode* fast = head->next;
+        
+        while(slow!=fast){
+            if(fast == NULL || fast->next == NULL){
+                return false;
+            }
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        return true;
+    }
+
+(II) Removing a loop (detecting a loop and removing loop)
+/* Link list node */
+struct Node { 
+    int data; 
+    struct Node* next; 
+}; 
+  
+/* Function to remove loop. */
+void removeLoop(struct Node*, struct Node*); 
+  
+/* This function detects and removes loop in the list 
+  If loop was there in the list then it returns 1, 
+  otherwise returns 0 */
+int detectAndRemoveLoop(struct Node* list) 
+{ 
+    struct Node *slow_p = list, *fast_p = list; 
+  
+    // Iterate and find if loop exists or not 
+    while (slow_p && fast_p && fast_p->next) { 
+        slow_p = slow_p->next; 
+        fast_p = fast_p->next->next; 
+  
+        /* If slow_p and fast_p meet at some point then there 
+           is a loop */
+        if (slow_p == fast_p) { 
+            removeLoop(slow_p, list); 
+  
+            /* Return 1 to indicate that loop is found */
+            return 1; 
+        } 
+    } 
+  
+    /* Return 0 to indicate that there is no loop*/
+    return 0; 
+} 
+  
+/* Function to remove loop. 
+ loop_node --> Pointer to one of the loop nodes 
+ head -->  Pointer to the start node of the linked list */
+void removeLoop(struct Node* loop_node, struct Node* head) 
+{ 
+    struct Node* ptr1 = loop_node; 
+    struct Node* ptr2 = loop_node; 
+  
+    // Count the number of nodes in loop 
+    unsigned int k = 1, i; 
+    while (ptr1->next != ptr2) { 
+        ptr1 = ptr1->next; 
+        k++; 
+    } 
+  
+    // Fix one pointer to head 
+    ptr1 = head; 
+  
+    // And the other pointer to k nodes after head 
+    ptr2 = head; 
+    for (i = 0; i < k; i++) 
+        ptr2 = ptr2->next; 
+  
+    /*  Move both pointers at the same pace, 
+      they will meet at loop starting node */
+    while (ptr2 != ptr1) { 
+        ptr1 = ptr1->next; 
+        ptr2 = ptr2->next; 
+    } 
+  
+    // Get pointer to the last node 
+    while (ptr2->next != ptr1) 
+        ptr2 = ptr2->next; 
+  
+    /* Set the next node of the loop ending node 
+      to fix the loop */
+    ptr2->next = NULL; 
+} 
+
+5.	Flattening of a LinkedList 
+
+6. Rotate a Linked list
+Given a linked list, rotate the list to the right by k places, where k is non-negative.
+
+Example 1:
+
+Input: 1->2->3->4->5->NULL, k = 2
+Output: 4->5->1->2->3->NULL
+Explanation:
+rotate 1 steps to the right: 5->1->2->3->4->NULL
+rotate 2 steps to the right: 4->5->1->2->3->NULL
+Example 2:
+
+Input: 0->1->2->NULL, k = 4
+Output: 2->0->1->NULL
+Explanation:
+rotate 1 steps to the right: 2->0->1->NULL
+rotate 2 steps to the right: 1->2->0->NULL
+rotate 3 steps to the right: 0->1->2->NULL
+rotate 4 steps to the right: 2->0->1->NULL
+
+SOLUTION:
+
+ListNode* rotateRight(ListNode* head, int k) {
+        if(!head)
+            return head;
+        ListNode* node = head;
+        int size = 1;
+        while(node->next!=NULL){
+            size++;
+            node = node->next;
+        }
+        node->next = head;
+        
+        k%=size;
+        while(--size >= k){
+            node = node->next;
+        }
+        ListNode* first = node->next;
+        node->next = NULL;
+        return first;
+    }
+
+7.	Clone a Linked List with random and next pointer. 
+
+8. SORT LIST 
+Sort a linked list in O(n log n) time using constant space complexity.
+
+Example 1:
+
+Input: 4->2->1->3
+Output: 1->2->3->4
+Example 2:
+
+Input: -1->5->3->4->0
+Output: -1->0->3->4->5
+
+SOLUTION:
+----O(NLOGN),O(1) -------
+(i) step 1 : find the middle of the linked list similiar to the merge sort partition.
+    (ii) step 2 : merge all the complete lists by recursion.
+    ListNode* sortList(ListNode* head) {
+        if(head == NULL || head->next == NULL)
+            return head;
+        
+        ListNode* temp = head;
+        ListNode* slow = head;
+        ListNode* fast = head;
+        
+        while(fast!=NULL && fast->next!=NULL){
+            temp = slow;
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        
+        temp->next = NULL;
+        
+        ListNode* left = sortList(head);
+        ListNode* right = sortList(slow);
+        
+        return merge(left,right);
+    }
+    ListNode* merge(ListNode* l1, ListNode* l2){
+        ListNode* dummy = new ListNode(0);
+        ListNode* last = dummy;
+        
+        while(l1!=NULL && l2!=NULL){
+            if(l1->val < l2->val){
+                last->next = l1;
+                l1 = l1->next;
+            }
+            else{
+                last->next = l2;
+                l2 = l2->next;
+            }
+            last = last->next;
+        }
+        if(l1!=NULL){
+            last->next = l1;
+        }
+        if(l2!=NULL){
+            last->next = l2;
+        }
+        return dummy->next;
+    }
+
+9. ODD EVEN LINKED LIST
+Given a singly linked list, group all odd nodes together followed by the even nodes. Please note here we are talking about the node number and not the value in the nodes.
+
+You should try to do it in place. The program should run in O(1) space complexity and O(nodes) time complexity.
+
+Example 1:
+
+Input: 1->2->3->4->5->NULL
+Output: 1->3->5->2->4->NULL
+Example 2:
+
+Input: 2->1->3->5->6->4->7->NULL
+Output: 2->3->6->7->1->5->4->NULL
+ 
+
+Constraints:
+
+The relative order inside both the even and odd groups should remain as it was in the input.
+The first node is considered odd, the second node even and so on ...
+The length of the linked list is between [0, 10^4].
+
+SOLUTION:
+
+ListNode* oddEvenList(ListNode* head) {
+        if(head == NULL)
+            return NULL;
+        ListNode* odd = head;
+        ListNode* even = head->next;
+        ListNode* evenhead = even;
+        
+        while(even!=NULL && even->next!=NULL){
+            odd->next = even->next;
+            odd = odd->next;
+            even->next = odd->next;
+            even = even->next;
+        }
+        odd->next = evenhead;
+        return head;
+    }
+
