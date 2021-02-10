@@ -199,80 +199,62 @@ bool hasCycle(ListNode *head) {
         return true;
     }
 
-(II) Removing a loop (detecting a loop and removing loop)
-/* Link list node */
-struct Node { 
-    int data; 
-    struct Node* next; 
-}; 
-  
-/* Function to remove loop. */
-void removeLoop(struct Node*, struct Node*); 
-  
-/* This function detects and removes loop in the list 
-  If loop was there in the list then it returns 1, 
-  otherwise returns 0 */
-int detectAndRemoveLoop(struct Node* list) 
-{ 
-    struct Node *slow_p = list, *fast_p = list; 
-  
-    // Iterate and find if loop exists or not 
-    while (slow_p && fast_p && fast_p->next) { 
-        slow_p = slow_p->next; 
-        fast_p = fast_p->next->next; 
-  
-        /* If slow_p and fast_p meet at some point then there 
-           is a loop */
-        if (slow_p == fast_p) { 
-            removeLoop(slow_p, list); 
-  
-            /* Return 1 to indicate that loop is found */
-            return 1; 
-        } 
-    } 
-  
-    /* Return 0 to indicate that there is no loop*/
-    return 0; 
-} 
-  
-/* Function to remove loop. 
- loop_node --> Pointer to one of the loop nodes 
- head -->  Pointer to the start node of the linked list */
-void removeLoop(struct Node* loop_node, struct Node* head) 
-{ 
-    struct Node* ptr1 = loop_node; 
-    struct Node* ptr2 = loop_node; 
-  
-    // Count the number of nodes in loop 
-    unsigned int k = 1, i; 
-    while (ptr1->next != ptr2) { 
-        ptr1 = ptr1->next; 
-        k++; 
-    } 
-  
-    // Fix one pointer to head 
-    ptr1 = head; 
-  
-    // And the other pointer to k nodes after head 
-    ptr2 = head; 
-    for (i = 0; i < k; i++) 
-        ptr2 = ptr2->next; 
-  
-    /*  Move both pointers at the same pace, 
-      they will meet at loop starting node */
-    while (ptr2 != ptr1) { 
-        ptr1 = ptr1->next; 
-        ptr2 = ptr2->next; 
-    } 
-  
-    // Get pointer to the last node 
-    while (ptr2->next != ptr1) 
-        ptr2 = ptr2->next; 
-  
-    /* Set the next node of the loop ending node 
-      to fix the loop */
-    ptr2->next = NULL; 
-} 
+(II) STARTING POINT OF THE LINKED LIST CYCLE( LINKED LIST CYCLE II)
+Given a linked list, return the node where the cycle begins. If there is no cycle, return null.
+
+To represent a cycle in the given linked list, we use an integer pos which represents the position (0-indexed) in the linked list where tail connects to. 
+If pos is -1, then there is no cycle in the linked list.
+
+Note: Do not modify the linked list.
+
+#
+ListNode *detectCycle(ListNode *head) {
+        if(head == NULL || head->next == NULL)
+            return NULL;
+        ListNode* slow = head;
+        ListNode* fast = head;
+        ListNode* entry = head;
+        
+        while(fast->next && fast->next->next){
+            slow = slow->next;
+            fast = fast->next->next;
+            if(slow == fast){
+                while(slow!=entry){
+                    slow = slow->next;
+                    entry = entry->next;
+                }
+                return entry; // found the starting point of the loop
+            }
+        }
+        return NULL; // not found, then return NULL
+    }
+
+(III) Removing a loop (detecting a loop and removing loop)
+
+   ListNode* removeCycle(ListNode* head){
+        if(head == NULL || head->next == NULL)
+		return NULL;
+        ListNode* slow = head;
+        ListNode* fast = head;
+        while(slow!=fast){	// detecting cycle		
+		if(fast == NULL || fast->next == NULL)
+			return NULL;
+		slow = slow->next;
+		fast = fast->next->next;
+         }
+        fast = head;
+        while(slow!=fast){     // finding the starting point of the cycle
+            slow = slow->next;
+	    fast = fast->next;
+         }
+        //removing the loop
+       while(fast->next!=slow){
+          fast = fast->next;
+       }
+       fast->next = NULL;
+ 
+     return head;
+}
 
 5.	Flattening of a LinkedList 
 
@@ -319,7 +301,53 @@ ListNode* rotateRight(ListNode* head, int k) {
     }
 
 7.	Clone a Linked List with random and next pointer. 
+A linked list is given such that each node contains an additional random pointer which could point to any node in the list or null.
+Return a deep copy of the list.
+The Linked List is represented in the input/output as a list of n nodes. Each node is represented as a pair of [val, random_index] where:
+val: an integer representing Node.val
+random_index: the index of the node (range from 0 to n-1) where random pointer points to, or null if it does not point to any node.
+LINK : https://leetcode.com/problems/copy-list-with-random-pointer/
+#
+THREE STEPS:
+**(I)CONSTRUCTING THE NEW LIST WITH THE CURRENT VALUE AND THE NEXT VALUE WITH RANDOM SET AS NULL
+(II)SETTING THE PREVIOUS NODE VALUE AT THIS STEP
+(III) INORDER TO RETURN THE VALUES FROM THE NEW LIST WE NEED TO ARRANGE IT SUCH THAT PROPER ORDER WE CAN RETURN **
 
+class Solution {
+public:
+    Node* copyRandomList(Node* head) {
+        if(!head)
+            return NULL;
+        Node* head_cp = NULL;
+        Node* curr = head;
+        Node* curr_cp = NULL;
+//(I)CONSTRUCTING THE NEW LIST WITH THE CURRENT VALUE AND THE NEXT VALUE WITH RANDOM SET AS NULL
+        while(curr!=NULL){
+            curr_cp = new Node(curr->val,curr->next,NULL);
+            curr->next = curr_cp;
+            curr = curr_cp->next;
+        }
+//(II)SETTING THE PREVIOUS NODE VALUE AT THIS STEP
+        curr = head;
+        while(curr!=NULL){
+            curr_cp = curr->next;
+            if(curr->random)
+                curr_cp->random = curr->random->next;
+            curr = curr_cp->next;
+        }
+//(III) INORDER TO RETURN THE VALUES FROM THE NEW LIST WE NEED TO ARRANGE IT SUCH THAT PROPER ORDER WE CAN RETURN 
+        curr = head;
+        head_cp = head->next;
+        while(curr!=NULL){
+            curr_cp = curr->next;
+            curr->next = curr_cp->next; // making the question's list back to normal
+            curr = curr->next;
+            if(curr)
+                curr_cp->next = curr->next;
+        }
+        return head_cp;
+    }
+};
 8. SORT LIST 
 Sort a linked list in O(n log n) time using constant space complexity.
 
@@ -421,3 +449,87 @@ ListNode* oddEvenList(ListNode* head) {
         return head;
     }
 
+10. REMOVE ELEMENTS FROM THE LINKEDLIST
+Remove all elements from a linked list of integers that have value val.
+
+Example:
+
+Input:  1->2->6->3->4->5->6, val = 6
+Output: 1->2->3->4->5
+#
+(I) RECURSIVE ---------------O(N), O(N)---------------------------------------
+ListNode* removeElements(ListNode* head, int val) {
+        if(!head)
+            return head;
+        ListNode* h = removeElements(head->next, val);
+        if(head->val == val)
+            return h;
+        head->next = h;
+        return head;
+    }
+(II) ITERATIVE ----------------O(N), O(1)------------------------------------- 
+ListNode* removeElements(ListNode* head, int val) {
+        if(!head)
+            return head;
+        ListNode* prev = NULL, *curr = head;
+        while(curr){
+            if(curr->val == val){
+                if(!prev)
+                    head = curr->next;
+                else
+                    prev->next = curr->next;
+            }
+            else
+                prev = curr;
+            curr = curr->next;
+        }
+        return head;
+    }
+
+11. Add two Elements II
+You are given two non-empty linked lists representing two non-negative integers. The most significant digit comes first and each of their nodes contain a single digit. Add the two numbers and return it as a linked list.
+
+You may assume the two numbers do not contain any leading zero, except the number 0 itself.
+
+Follow up:
+What if you cannot modify the input lists? In other words, reversing the lists is not allowed.
+
+Example:
+
+Input: (7 -> 2 -> 4 -> 3) + (5 -> 6 -> 4)
+Output: 7 -> 8 -> 0 -> 7
+
+# --------------------------O(MAX(l1,l2)),O(l1+l2)----------------------------------
+
+ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+        stack<int> s1,s2;
+        while(l1){
+            s1.push(l1->val);
+            l1 = l1->next;
+        }
+        while(l2){
+            s2.push(l2->val);
+            l2 = l2->next;
+        }
+        
+        ListNode* result = NULL;
+        int List1,List2,carry = 0;
+        while(!s1.empty()||!s2.empty()||carry){
+            if(!s1.empty()){
+                List1 = s1.top(); s1.pop();
+            }else{
+                List1 = 0;
+            }
+            if(!s2.empty()){
+                List2 = s2.top(); s2.pop();
+            } else{
+                List2 = 0;
+            }
+            int temp = List1+List2+carry;
+            ListNode* node = new ListNode(temp % 10);
+            node->next = result;
+            result = node;
+            carry = temp/10;
+        }
+        return result;
+    }

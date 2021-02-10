@@ -1,0 +1,663 @@
+Day23: (Graph) 
+
+1. BFS( BREADTH FIRST SEARCH)
+        0
+      /   \
+     1     3
+    /    /  \
+   /    /    4
+  /   /
+   2
+
+OUTPUT : 0 1 3 2 4
+SIMILIAR TO THE INORDER TRAVERSAL
+MAKING USE OF THE QUEUE 
+
+-------O(V+E), O(V)--------------
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Graph{
+  int m_v;                   // vertices
+  vector<vector<int>> m_adj; // edges in the form of adjacency list
+  public:
+  
+  Graph(int v):m_v(v), m_adj(v){  // constructor initailizing m_v and m_adj with the size v
+  }
+  
+  void addEdge(int u, int v){
+      m_adj[u].push_back(v);
+      //m_adj[v].push_back(u); for the undirected graph
+  }
+  
+  void BFS(int s){
+      queue<int> q;  // queue 
+      vector<bool> visited(m_v,false); // vector for visited values
+      q.push(s);  // pushing the starting value
+      visited[s] = true;  // making it as true in the visited vector
+      while(!q.empty()){   
+          int v = q.front();  
+          q.pop();
+          cout<<v<<endl;
+          for(int u: m_adj[v]){  // checking for the adjacent values of the v in the m_adj
+              if(!visited[u]){   // if not visited then storing it in the queue and making true in the visited vector
+                  q.push(u);
+                  visited[u] = true;
+              }
+          }
+      }
+  }
+};
+int main()
+{
+    Graph G(5);
+    G.addEdge(0,1);
+    G.addEdge(0,3);
+    G.addEdge(1,2);
+    G.addEdge(3,2);
+    G.addEdge(3,4);
+    G.BFS(0);
+    return 0;
+}
+
+2. DFS (DEPTH FIRST SEARCH)
+        0
+      /   \
+     1     3
+    /    /  \
+   /    /    4
+  /   /
+   2                            (/  == ->)
+OUTPUT:
+0 1 2 3 4
+
+(I) RECURSIVE
+--------O(V+E), O(V) ----------
+
+
+#include<bits/stdc++.h>
+using namespace std;
+
+class Graph{
+    int vert;
+    vector<vector<int>> adj;
+    void DFS_rec(int s, vector<bool>& visited){
+        visited[s] = true;
+        cout<<s<<endl;
+        for(int u:adj[s]){
+            if(!visited[u]){
+                DFS_rec(u,visited);
+            }
+        }
+    }
+    public:
+    
+    Graph(int v): vert(v), adj(v){
+    }
+    
+    void addedge(int u, int v){
+        adj[u].push_back(v);
+    }
+    
+    void DFS(){
+        vector<bool> visited(vert,false);
+        for(int i=0;i<vert;i++){
+            if(!visited[i]){
+                DFS_rec(i,visited);
+            }
+          }
+        }
+};
+
+int main(){
+    Graph G(5);
+    G.addedge(0,1);
+    G.addedge(0,3);
+    G.addedge(1,2);
+    G.addedge(3,2);
+    G.addedge(3,4);
+    G.DFS();
+    return 0;
+}
+
+(II) ITERATIVE (USING STACK)
+-------O(V+E), O(V) --------
+
+class Graph{
+    int vert;
+    vector<vector<int>> adj;
+    public:
+    
+    Graph(int v): vert(v), adj(v){
+    }
+    
+    void addedge(int u, int v){
+        adj[u].push_back(v);
+    }
+    
+    void DFS_it(int s, vector<bool>& visited){
+        stack<int> S;
+        S.push(s);
+        visited[s] = true;
+        while(!S.empty()){
+            int u = S.top();
+            S.pop();
+            cout<<u<<endl;
+            for(int i:adj[u]){
+                if(!visited[i]){
+                    S.push(i);
+                    visited[i] = true;
+                }
+            }
+        }
+    }
+    void DFS(){
+        vector<bool> visited(vert,false);
+        for(int i=0;i<vert;i++){
+            if(!visited[i]){
+                DFS_it(i,visited);
+            }
+          }
+        }
+};
+
+int main(){
+    Graph G(5);
+    G.addedge(0,1);
+    G.addedge(0,3);
+    G.addedge(1,2);
+    G.addedge(3,2);
+    G.addedge(3,4);
+    G.DFS();
+    return 0;
+}
+
+3. NUMBER OF ISLANDS
+Given a 2d grid map of '1's (land) and '0's (water), count the number of islands. An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.
+
+ 
+
+Example 1:
+
+Input: grid = [
+  ["1","1","1","1","0"],
+  ["1","1","0","1","0"],
+  ["1","1","0","0","0"],
+  ["0","0","0","0","0"]
+]
+Output: 1
+Example 2:
+
+Input: grid = [
+  ["1","1","0","0","0"],
+  ["1","1","0","0","0"],
+  ["0","0","1","0","0"],
+  ["0","0","0","1","1"]
+]
+Output: 3
+
+SOLUTION:
+#
+class Solution {
+public:
+    int m;
+    int n;
+    void dfs(vector<vector<char>>& grid, int i, int j){
+        if(i < 0 || i >= m || j < 0 || j>=n || grid[i][j]=='0')
+            return;
+        grid[i][j] = '0';
+        dfs(grid,i+1,j);
+        dfs(grid,i-1,j);
+        dfs(grid,i,j+1);
+        dfs(grid,i,j-1);
+    }
+    int numIslands(vector<vector<char>>& grid) {
+        if(grid.empty())
+            return 0;
+        m = grid.size();
+        n = grid[0].size();
+        int count = 0;
+        for(int i=0;i<m;i++){
+            for(int j=0;j<n;j++){
+                if(grid[i][j] == '1'){
+                    count++;
+                    dfs(grid,i,j);
+                }
+            }
+        }
+        return count;
+    }
+};
+
+(Q) SURROUNDED REGIONS
+Given a 2D board containing 'X' and 'O' (the letter O), capture all regions surrounded by 'X'.
+
+A region is captured by flipping all 'O's into 'X's in that surrounded region.
+
+Example:
+
+X X X X
+X O O X
+X X O X
+X O X X
+After running your function, the board should be:
+
+X X X X
+X X X X
+X X X X
+X O X X
+Explanation:
+
+Surrounded regions shouldn’t be on the border, which means that any 'O' on the border of the board are not flipped to 'X'.
+ Any 'O' that is not on the border and it is not connected to an 'O' on the border will be flipped to 'X'. Two cells are connected if 
+they are adjacent cells connected horizontally or vertically.
+
+#
+-------------------USING DFS -------------O(M*N), O(M*N) --------------------------------------
+
+void solve(vector<vector<char>>& board) {
+        int R = board.size();
+        if(R <= 2) return;
+        int C = board[0].size();
+        if(C <= 2) return;
+        for(int i = 0; i < R; ++i){
+            for(int j = 0; j < C; ++j){
+                if(board[i][j] == 'O' && (i == 0 || i == R-1 || j == 0 || j == C-1))
+                    dfs(board, i, j);
+            }
+        }
+        
+        for(int i = 0; i < R; ++i){
+            for(int j = 0; j < C; ++j){
+                if(board[i][j] == 'O') board[i][j] = 'X';
+                else if(board[i][j] == 'A') board[i][j] = 'O';
+            }
+        }
+    }
+    
+    void dfs(vector<vector<char>>& board, int i, int j){
+        if( i >= 0 && i < board.size() && j >= 0 && j < board[0].size() && board[i][j] == 'O'){
+            board[i][j] = 'A';
+            dfs(board, i-1, j);
+            dfs(board, i+1, j);
+            dfs(board, i, j-1);
+            dfs(board, i, j+1);
+        }
+    }
+
+(Q) WORD SEARCH
+Given a 2D board and a word, find if the word exists in the grid.
+
+The word can be constructed from letters of sequentially adjacent cell, where "adjacent" cells are those horizontally or vertically neighboring. 
+The same letter cell may not be used more than once.
+
+Example:
+
+board =
+[
+  ['A','B','C','E'],
+  ['S','F','C','S'],
+  ['A','D','E','E']
+]
+
+Given word = "ABCCED", return true.
+Given word = "SEE", return true.
+Given word = "ABCB", return false.
+ 
+
+Constraints:
+
+board and word consists only of lowercase and uppercase English letters.
+1 <= board.length <= 200
+1 <= board[i].length <= 200
+1 <= word.length <= 10^3
+#
+(I) ONE SOLUTION--------MAKING USE OF THE VISITED MATRIX------O(M*N), O(M*N)--------------------------------------------
+(II) OPTIMIZED SOLUTION --------------------------------------O(M*N), O(1)----------------------------------------------
+
+class Solution {
+public:
+    int m,n;
+    bool search(vector<vector<char>>& board, int i, int j, string& word){
+        if(!word.size())
+            return true;
+        if(i<0 || i>=m || j<0 || j>=n || board[i][j]!=word[0])
+            return false;
+        char c = board[i][j];
+        board[i][j] = '*';
+        string s = word.substr(1);
+        bool result = search(board,i-1,j,s) || search(board,i+1,j,s) || search(board,i,j-1,s) || search(board,i,j+1,s);
+        board[i][j] = c;
+        return result;
+    }
+    bool exist(vector<vector<char>>& board, string word) {
+        m = board.size();
+        n = board[0].size();
+        for(int i=0;i<m;i++){
+            for(int j=0;j<n;j++){
+                if(search(board,i,j,word))
+                    return true;
+            }
+        }
+        return false;
+    }
+};
+
+4. DETECT A CYCLE IN A DIRECTED GRAPH
+USING THE DFS APPROACH -------------
+---------O(V+E), O(V) --------------
+#
+
+#include<bits/stdc++.h>
+using namespace std;
+
+class Graph{
+    int vert;
+    vector<vector<int>> adj;
+    public:
+    
+    Graph(int v): vert(v), adj(v){
+    }
+    
+    void addedge(int u, int v){
+        adj[u].push_back(v);
+    }
+    
+    bool dfs(int node, vector<bool>& visited, vector<bool>& rec){
+    if(visited[node] == false){
+        visited[node] = true;
+        rec[node] = true;
+        
+        for(int i:adj[node]){
+            if(!visited[i] && dfs(i,visited,rec))
+                return true;
+            else if(rec[i] == true)
+                return true;
+        }
+    }
+        rec[node] = false;
+    return false;
+    }
+    
+    bool isCycle(){
+        vector<bool> visited(vert,false);
+        vector<bool> rec(vert,false);
+        for(int i=0;i<vert;i++){
+            if(dfs(i,visited,rec)){
+                return true;
+            }
+        }
+        return false;
+    }
+   
+};
+
+int main(){
+    Graph G(7);
+    G.addedge(0,1);
+    G.addedge(1,2);
+    G.addedge(2,3);
+    G.addedge(3,4);
+    G.addedge(4,5);
+    G.addedge(5,6);
+    G.addedge(6,3); // comment this down to get no cycle as the output
+    if(G.isCycle())
+        cout<<"Cycle";
+    else
+        cout<<"no cycle";
+    return 0;
+}
+
+5. DETECT A CYCLE IN A UNDIRECTED GRAPH
+------USING THE DFS APPROACH -----------
+--------O(V+E), O(V) -------------------
+#
+
+#include<bits/stdc++.h>
+using namespace std;
+
+class Graph{
+    int vert;
+    vector<vector<int>> adj;
+    public:
+    
+    Graph(int v): vert(v), adj(v){
+    }
+    
+    void addedge(int u, int v){
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+    
+    bool dfs(int node, vector<bool>& visited, int parent){
+        visited[node] = true;
+        
+        for(int i:adj[node]){
+      // If an adjacent is not visited, then recur for that adjacent
+            if(!visited[i]){
+                if(dfs(i,visited,node)){
+                    return true;
+                }
+            }
+        // If an adjacent is visited and not parent of current vertex, 
+        // then there is a cycle.
+            else if(i!= parent)
+                return true;
+        }
+    return false;
+    }
+    
+    bool isCycle(){
+        vector<bool> visited(vert,false);
+        for(int i=0;i<vert;i++){
+            if(!visited[i]){
+            if(dfs(i,visited,-1)){
+                return true;
+            }
+          }
+        }
+        return false;
+    }
+   
+};
+
+int main(){
+    Graph G(7);
+    G.addedge(0,1);
+    G.addedge(1,2);
+    G.addedge(2,3);
+    G.addedge(3,4);
+    G.addedge(4,5);
+    G.addedge(5,6);
+    G.addedge(6,3); // comment this down to get no cycle as the output
+    if(G.isCycle())
+        cout<<"Cycle";
+    else
+        cout<<"no cycle";
+    return 0;
+}
+
+6. TOPOLOGICAL SORT
+Topological sorting for Directed Acyclic Graph (DAG) is a linear ordering of vertices such that for every directed edge uv, vertex u comes before v in the ordering.
+Topological Sorting for a graph is not possible if the graph is not a DAG.
+For example, a topological sorting of the following graph is “5 4 2 3 1 0”. There can be more than one topological sorting for a graph. 
+For example, another topological sorting of the following graph is “4 5 2 3 1 0”. The first vertex in topological sorting is always a vertex with in-degree as 
+0 (a vertex with no incoming edges).
+
+FOR CONCEPT: https://www.geeksforgeeks.org/topological-sorting/
+
+-------------O(V+E), O(N+V) ----------- N IS THE SIZE OF THE STACK
+
+#include<bits/stdc++.h>
+using namespace std;
+
+class Graph{
+    int vert;
+    vector<vector<int>> adj;
+    public:
+    
+    Graph(int v): vert(v), adj(v){
+    }
+    
+    void addedge(int u, int v){
+        adj[u].push_back(v);
+    }
+    
+    
+   void util(int v,vector<bool>& visited, stack<int>& s){
+       visited[v] = true;
+       for(int i:adj[v]){
+           if(!visited[i]){
+               util(i,visited,s);
+           }
+       }
+       s.push(v);
+   }    
+   void topologicalSort(){
+       stack<int> s;
+       vector<bool> visited(vert,false);
+       for(int i=0;i<vert;i++){
+           if(!visited[i]){
+               util(i,visited,s);
+           }
+       }
+       while(!s.empty()){
+           cout<<s.top()<<" ";
+           s.pop();
+       }
+   }
+   
+};
+
+int main(){
+    Graph G(7);
+    G.addedge(0,1);
+    G.addedge(1,2);
+    G.addedge(2,3);
+    G.addedge(3,4);
+    G.addedge(4,5);
+    G.addedge(5,6);
+   // G.addedge(6,3); // comment this down to get no cycle as the output
+    G.topologicalSort();
+    return 0;
+}
+
+7. CLONE GRAPH
+Given a reference of a node in a connected undirected graph.
+
+Return a deep copy (clone) of the graph.
+
+Each node in the graph contains a val (int) and a list (List[Node]) of its neighbors.
+
+class Node {
+    public int val;
+    public List<Node> neighbors;
+}
+ 
+
+Test case format:
+
+For simplicity sake, each node's value is the same as the node's index (1-indexed). For example, the first node with val = 1, the second node with val = 2, and so on. The graph is represented in the test case using an adjacency list.
+
+Adjacency list is a collection of unordered lists used to represent a finite graph. Each list describes the set of neighbors of a node in the graph.
+
+The given node will always be the first node with val = 1. You must return the copy of the given node as a reference to the cloned graph.
+Input: adjList = [[2,4],[1,3],[2,4],[1,3]]
+Output: [[2,4],[1,3],[2,4],[1,3]]
+Explanation: There are 4 nodes in the graph.
+1st node (val = 1)'s neighbors are 2nd node (val = 2) and 4th node (val = 4).
+2nd node (val = 2)'s neighbors are 1st node (val = 1) and 3rd node (val = 3).
+3rd node (val = 3)'s neighbors are 2nd node (val = 2) and 4th node (val = 4).
+4th node (val = 4)'s neighbors are 1st node (val = 1) and 3rd node (val = 3).
+----https://leetcode.com/problems/clone-graph/-----
+
+#
+class Solution {
+public:
+    Node* cloneGraph(Node* node) {
+        if (!node) {
+            return NULL;
+        }
+        if (copies.find(node) == copies.end()) {
+            copies[node] = new Node(node -> val, {});
+            for (Node* neighbor : node -> neighbors) {
+                copies[node] -> neighbors.push_back(cloneGraph(neighbor));
+            }
+        }
+        return copies[node];
+    }
+private:
+    unordered_map<Node*, Node*> copies;
+};
+
+
+7. IS GRAPH BIPARITITE
+Given an undirected graph, return true if and only if it is bipartite.
+
+Recall that a graph is bipartite if we can split it's set of nodes into two independent subsets A and B such that every edge in the graph has one node in A and another node in B.
+
+The graph is given in the following form: graph[i] is a list of indexes j for which the edge between nodes i and j exists.  Each node is an integer between 0 and graph.length - 1.  There are no self edges or parallel edges: graph[i] does not contain i, and it doesn't contain any element twice.
+
+Example 1:
+Input: [[1,3], [0,2], [1,3], [0,2]]
+Output: true
+Explanation: 
+The graph looks like this:
+0----1
+|    |
+|    |
+3----2
+We can divide the vertices into two groups: {0, 2} and {1, 3}.
+Example 2:
+Input: [[1,2,3], [0,2], [0,1,3], [0,2]]
+Output: false
+Explanation: 
+The graph looks like this:
+0----1
+| \  |
+|  \ |
+3----2
+We cannot find a way to divide the set of nodes into two independent subsets.
+ 
+
+Note:
+
+graph will have length in range [1, 100].
+graph[i] will contain integers in range [0, graph.length - 1].
+graph[i] will not contain i or duplicate values.
+The graph is undirected: if any element j is in graph[i], then i will be in graph[j].
+#
+
+SOLUTION:
+--------------O(V+E), O(V) -----------------------------------------------------------
+class Solution {
+public:
+    bool isBipartite(vector<vector<int>>& graph) {
+        int n = graph.size();
+        vector<int> color(n,0);  // 0: uncoloured, 1: color A, 2: color B
+        queue<int> q;
+        for(int i=0;i<n;i++){
+            if(abs(color[i]))     // if already coloured (1 or -1)
+                continue;
+            color[i] = 1;
+            q.push(i);
+            while(!q.empty()){
+                int cur = q.front();
+                q.pop();
+                for(int child : graph[cur]){
+                    if(!color[child]){         // if uncoloured
+                        color[child] = -color[cur];   // color it with opposite color
+                        q.push(child);
+                    }
+                    else if(color[child] == color[cur]){//if already colored with the same color
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+};
+
+

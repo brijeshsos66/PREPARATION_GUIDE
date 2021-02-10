@@ -1,0 +1,409 @@
+Day21: (BinarySearchTree) 
+
+1.	Floor and Ceil in a BST 
+(I) CEIL VALUE OF A KEY IN BST(>=)
+ There are numerous applications we need to find floor (ceil) value of a key in a binary search tree or sorted array. For example, consider designing memory management system in 
+which free nodes are arranged in BST. Find best fit for the input request.
+
+Ceil Value Node: Node with smallest data larger than or equal to key value.
+
+Imagine we are moving down the tree, and assume we are root node. The comparison yields three possibilities,
+
+A) Root data is equal to key. We are done, root data is ceil value.
+B) Root data < key value, certainly the ceil value can’t be in left subtree. Proceed to search on right subtree as reduced problem instance
+C) Root data > key value, the ceil value may be in left subtree. We may find a node with is larger data than key value in left subtree, if not the root itself will be ceil node.
+
+Here is the code for ceil value.
+
+SOLUTION:
+A simple solution is to traverse the tree using (Inorder or Preorder or Postorder) and keep track of closest smaller or same element. Time complexity of this solution is O(n) where 
+n is total number of Nodes in BST.
+
+EFFICIENT SOLUTION:
+ ------O(H), O(1)--------- WHERE H IS THE HEIGHT OF THE TREE
+
+// Function to find ceil of a given input in BST. If input is more 
+// than the max key in BST, return -1 
+int Ceil(node* root, int input) 
+{ 
+    // Base case 
+    if (root == NULL) 
+        return -1; 
+  
+    // We found equal key 
+    if (root->key == input) 
+        return root->key; 
+  
+    // If root's key is smaller, ceil must be in right subtree 
+    if (root->key < input) 
+        return Ceil(root->right, input); 
+  
+    // Else, either left subtree or root has the ceil value 
+    int ceil = Ceil(root->left, input); 
+    return (ceil >= input) ? ceil : root->key; 
+} 
+
+(II) FLOOR VALUE OF A KEY IN A BST
+Given a Binary Search Tree and a number x, find floor of x in the given BST.
+
+Input : x = 14 and root of below tree
+            10
+           /  \
+          5    15
+              /  \
+            12    30
+Output : 12
+
+Input : x = 15 and root of below tree
+            10
+           /  \
+          5    15
+              /  \
+            12    30
+Output : 15 
+
+SOLUTION:
+A simple solution is to traverse the tree using (Inorder or Preorder or Postorder) and keep track of closest smaller or same element. Time complexity of this solution is O(n) where n is total number of Nodes in BST.
+
+We can efficiently find closest smaller or same element in O(h) time where h is height of BST. Algorithm to find the floor of a key in a binary search tree (BST):
+
+1 Start at the root Node.
+2 If root->data == key, 
+     floor of the key is equal 
+     to the root.
+3 Else if root->data > key, then 
+     floor of the key must lie in the
+     left subtree.
+4 Else floor may lie in the right subtree 
+  but only if there is a value lesser than 
+  or equal to the key.If not, then root is
+  the key.
+
+---------O(H), O(1) --------
+
+/*This function is used to find floor of a key*/
+int floor(Node* root, int key) 
+{ 
+    if (!root) 
+        return INT_MAX; 
+  
+    /* If root->data is equal to key */
+    if (root->data == key) 
+        return root->data; 
+  
+    /* If root->data is greater than the key */
+    if (root->data > key) 
+        return floor(root->left, key); 
+  
+    /* Else, the floor may lie in right subtree 
+      or may be equal to the root*/
+    int floorValue = floor(root->right, key); 
+    return (floorValue <= key) ? floorValue : root->data; 
+} 
+
+2.	Find K-th smallest and K-th largest element in BST (2 different Questions) 
+(I) KTH SMALLEST ELEMENT IN BST
+Given a binary search tree, write a function kthSmallest to find the kth smallest element in it.
+
+ 
+
+Example 1:
+
+Input: root = [3,1,4,null,2], k = 1
+   3
+  / \
+ 1   4
+  \
+   2
+Output: 1
+Example 2:
+
+Input: root = [5,3,6,2,4,null,null,1], k = 3
+       5
+      / \
+     3   6
+    / \
+   2   4
+  /
+ 1
+Output: 3
+Follow up:
+What if the BST is modified (insert/delete operations) often and you need to find the kth smallest frequently? How would you optimize the kthSmallest routine?
+
+ 
+
+Constraints:
+
+The number of elements of the BST is between 1 to 10^4.
+You may assume k is always valid, 1 ≤ k ≤ BST's total elements.
+
+SOLUTION:
+ ----- INORDER(WHICH WE ARE GOING TO IMPLEMENT) , STACK ----- BOTH APPROACHES TAKES ---O(N), O(H) ------
+
+int kthSmallest(TreeNode* root, int k) {
+        int count = 0;
+        int res = 0;
+        inorder(root,k,count,res);
+        return res;
+    }
+    void inorder(TreeNode* root, int k, int& count, int& res){
+        if(root->left)
+            inorder(root->left,k,count,res);
+        count++;
+        if(count == k){
+            res = root->val;
+            return;
+        }
+        if(root->right)
+            inorder(root->right,k,count,res);
+    }
+
+(II) KTH LARGEST ELEMENT IN THE BST
+------O(N), O(H) --------- SIMILIAR TO THE KTH SMALLEST ONLY WE WILL FIRST VISIT RIGHT THEN ROOT THEN LEFT (REVERSE OF INORDER)
+
+int kthLargest(TreeNode* root, int k) {
+        int count = 0;
+        int res = 0;
+        REVinorder(root,k,count,res);
+        return res;
+    }
+    void REVinorder(TreeNode* root, int k, int& count, int& res){
+        if(root->right)
+            REVinorder(root->right,k,count,res);
+        count++;
+        if(count == k){
+            res = root->val;
+            return;
+        }
+        if(root->left)
+            REVinorder(root->left,k,count,res);
+    }
+
+3.	Find a pair with a given sum in BST (Two Sum IV - Input is a BST)
+Given a Binary Search Tree and a target number, return true if there exist two elements in the BST such that their sum is equal to the given target.
+
+Example 1:
+
+Input: 
+    5
+   / \
+  3   6
+ / \   \
+2   4   7
+
+Target = 9
+
+Output: True
+ 
+
+Example 2:
+
+Input: 
+    5
+   / \
+  3   6
+ / \   \
+2   4   7
+
+Target = 28
+
+Output: False
+
+SOLUTION:
+----O(N),O(N) ---------
+
+// INORDER WILL STORE THE ELEMENTS IN THE SORTED ORDER
+    // THEN WE WILL MAKE USE OF THE TWO POINTER APPROACH TWO DETERMINE 
+    // WHETHER THE SUM OF TWO VALUES == TARGET VALUE.
+    vector<int> result;
+    
+    void inorder(TreeNode* root){
+        if(root == NULL)
+            return;
+        inorder(root->left);
+        result.push_back(root->val);
+        inorder(root->right);
+    }
+    
+    bool findTarget(TreeNode* root, int k) {
+        inorder(root);
+        int l = 0, r = result.size() - 1;
+        while(l<r){
+            if(result[l]+result[r] == k)
+                return true;
+            else if(result[l]+result[r] > k)
+                r--;
+            else
+                l++;
+        }
+        return false;
+    }
+
+4. BST ITERATOR
+Implement an iterator over a binary search tree (BST). Your iterator will be initialized with the root node of a BST.
+
+Calling next() will return the next smallest number in the BST.
+               7
+            /     \
+           3      15
+                 /  \
+                9    20
+
+BSTIterator iterator = new BSTIterator(root);
+iterator.next();    // return 3
+iterator.next();    // return 7
+iterator.hasNext(); // return true
+iterator.next();    // return 9
+iterator.hasNext(); // return true
+iterator.next();    // return 15
+iterator.hasNext(); // return true
+iterator.next();    // return 20
+iterator.hasNext(); // return false
+ 
+
+Note:
+
+next() and hasNext() should run in average O(1) time and uses O(h) memory, where h is the height of the tree.
+You may assume that next() call will always be valid, that is, there will be at least a next smallest number in the BST when next() is called.
+
+SOLUTION:
+
+-------O(N) , O(H) -----------------
+
+class BSTIterator {
+public:
+    stack<TreeNode*> s;
+    
+    BSTIterator(TreeNode* root) {
+        leftorder(root); // for the intial root 
+    }
+    void leftorder(TreeNode* root){
+        // pushing all the left items i.e., smaller elements first then root
+        while(root){
+            s.push(root);
+            root = root->left;
+        }
+    }
+    
+    /** @return the next smallest number */
+    int next() {
+        TreeNode* item = s.top();
+        s.pop();
+        leftorder(item->right);
+        
+        return item->val;
+    }
+    
+    /** @return whether we have a next smallest number */
+    bool hasNext() {
+        return s.size()>0;
+    }
+};
+
+5.	Size of the largest BST in a Binary Tree 
+            10
+         /      \
+       15         8
+     /     \     /  \
+   12      20   5    2
+OUTPUT: 3 
+BECAUSE OF THE LEFT SUBTREE [12,15,20]
+#
+------------O(N^2), O(H) ----------------------------
+
+int size(Node* root){
+ if(!root)
+    return 0;
+ return size(root->left)+1+size(root->right);
+ }
+------------------------------------------------------------------------------------------
+int isBST(Node* root, int min, int max){
+ //base case
+ if(!root)
+      return true;
+ //outside valid range
+ if(root->data < min || root->data > max)
+	return false;
+
+ return isBST(root->left, min , root->data) && isBST(root->right, root->data, max);
+}
+------------------------------------------------------------------------------------------
+int findLargestBST(Node* root){
+ if(isBST(root, INT_MIN, INT_MAX))
+	return size(root);
+
+ return max(findLargestBST(root->left),findLargestBST(root->right));
+}
+
+6.	Serialize and deserialize Binary Tree
+Serialization is the process of converting a data structure or object into a sequence of bits so that it can be stored in a file or memory buffer, or transmitted across a network connection link to be reconstructed later in the same or another computer environment.
+
+Design an algorithm to serialize and deserialize a binary tree. There is no restriction on how your serialization/deserialization algorithm should work. You just need to ensure that a binary tree can be serialized to a string and this string can be deserialized to the original tree structure.
+
+Example: 
+
+You may serialize the following tree:
+
+    1
+   / \
+  2   3
+     / \
+    4   5
+
+as "[1,2,3,null,null,4,5]"
+Clarification: The above format is the same as how LeetCode serializes a binary tree. You do not necessarily need to follow this format, so please be creative and come up with different approaches yourself.
+
+Note: Do not use class member/global/static variables to store states. Your serialize and deserialize algorithms should be stateless.
+
+serialize :
+    1
+   / \
+  2   3      tree                     ------>(to)                string[1,2,null,null,4,5]
+     / \
+    4   5
+
+deserialize:
+ 
+string[1,2,null,null,4,5]             -------->(to)             tree   1
+                                                                     /   \
+                                                                    2     3
+                                                                         / \
+                                                                         4  5
+
+#
+
+// Encodes a tree to a single string.
+    string serialize(TreeNode* root) {
+        if(!root)
+            return "NULL,";
+        return to_string(root->val)+","+serialize(root->left)+serialize(root->right);
+    }
+
+    // Decodes your encoded data to tree.
+    TreeNode* deserialize(string data) {
+        queue<string> q;
+        string s;
+        
+        for(int i=0;i<data.size();i++){
+            if(data[i] == ','){
+                q.push(s);
+                s = "";
+                continue;
+            }
+            s+=data[i];
+        }
+        if(s.size()!=0)
+            q.push(s);
+        return deserialize_helper(q);
+    }
+    
+    TreeNode* deserialize_helper(queue<string>& q){
+        string s = q.front();
+        q.pop();
+        if(s == "NULL")
+            return NULL;
+        TreeNode* root = new TreeNode(stoi(s));
+        root->left = deserialize_helper(q);
+        root->right = deserialize_helper(q);
+        return root;
+    }

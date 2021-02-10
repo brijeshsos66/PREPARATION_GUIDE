@@ -1,0 +1,279 @@
+Day12: (Bits) (Optional, very rare topic in interviews, but if you have time left, someone might ask)
+
+1. Check if a number if a power of 2 or not in O(1) 
+Given an integer, write a function to determine if it is a power of two.
+
+Example 1:
+
+Input: 1
+Output: true 
+Explanation: 20 = 1
+Example 2:
+
+Input: 16
+Output: true
+Explanation: 24 = 16
+Example 3:
+
+Input: 218
+Output: false
+
+SOLUTION:
+(I) USE THE STL FUNCTION (__builtin_popcount()) to count the number of set bits i.e., 1;
+
+	int powerof2(int n){
+	  int cnt = __builtin_popcount(n);
+	  if(cnt == 1 && n > 0)
+		return true;
+	  else
+		return false;
+	 }
+
+(II) USE THE BITWISE AND (&) WITH ITS PREVIOUS NUMBER I.E., N-1 . example : 4 & 3-----> 100 & 011 = 000 . It must result in 0
+
+	int powerof2(int n){
+	 if(n>0 && (n & (n-1)) == 0 )
+		return true;
+	 return false;
+	}
+
+BONUS QUES:
+{i} POWER OF 3
+# 
+bool isPowerOfThree(int n) {
+        if(n>0 && 3486784401%n == 0)   // this value is 3^20 = 3486784401
+            return true;
+        return false;
+    }
+{ii} POWER OF 4
+#
+------------------o(logn), o(1)---------------------
+bool isPowerOfFour(int n) {
+        if(n==0)
+            return false;
+        while(n!=1){
+            if(n%4!=0)
+                return false;
+            n/=4;
+        }
+        return true;
+    }
+-----------------------o(1),o(1)----------------------
+bool isPowerOfFour(int n) {
+        if(n<=0)
+            return false;
+        if((n&(n-1)) == 0 && n%3 == 1 ) // power of 2 logic and 4%3 == 1 logic
+            return true;
+        return false;
+    }
+
+2.	Count total set bits 
+Write a function that takes an unsigned integer and return the number of '1' bits it has (also known as the Hamming weight).
+
+ 
+
+Example 1:
+
+Input: 00000000000000000000000000001011
+Output: 3
+Explanation: The input binary string 00000000000000000000000000001011 has a total of three '1' bits.
+Example 2:
+
+Input: 00000000000000000000000010000000
+Output: 1
+Explanation: The input binary string 00000000000000000000000010000000 has a total of one '1' bit.
+Example 3:
+
+Input: 11111111111111111111111111111101
+Output: 31
+Explanation: The input binary string 11111111111111111111111111111101 has a total of thirty one '1' bits.
+
+SOLUTION:
+(I) USING THE DIVIDE AND REMAINDER METHOD
+----O(LOGN), O(1) ------
+int hammingWeight(uint32_t n) {
+        int c = 0;
+        while(n!=0){
+            int rem = n%2;
+            if(rem == 1)
+                c++;
+            n/=2;
+        }
+        return c;
+    }
+
+(II) USING THE POWER OF 2 APPROACH ---
+int hammingWeight(uint32_t n) {
+        int c = 0;
+        while(n!=0){
+           c++;
+            n&=(n-1);
+        }
+        return c;
+    }
+
+(III) USING THE INBUILT FUNCTION [__builtin_popcount(unsigned int n)]
+int hammingWeight(uint32_t n) {
+        return __builtin_popcount(n);
+    }
+
+3.	Divide Integers without / operator 
+SOLUTION IS BY MAKING USE OF THE SUBTRACTION OPERATOR 
+example :
+ (i) 17 / 5                            (ii) 20 / 5
+ --- 17 - 5 = 12 - 5 = 7 - 5 = 2(rem)       ----same as previous == 4
+      (1)      (1)      (1)  = 3
+
+# CONSIDERING THE TWO INTEGERS A(DIVIDEND) & B(DIVISOR)
+   int divide(int a, int b){
+	count = 0;
+	while(a >= b){ // logic : while a >= b
+	  count++;
+	  a = a - b;
+	} 
+	return count;
+      }
+
+4.	Power Set (this is very important) 
+ -- finding all the subsets of an a vector of values ----
+
+Given a set of distinct integers, nums, return all possible subsets (the power set).
+
+Note: The solution set must not contain duplicate subsets.
+
+Example:
+
+Input: nums = [1,2,3]
+Output:
+[
+  [3],
+  [1],
+  [2],
+  [1,2,3],
+  [1,3],
+  [2,3],
+  [1,2],
+  []
+]
+
+SOLUTION:
+------O(N*(2^N)), O(N*(2^N)) ------
+(i) RECURSIVE
+vector<vector<int>> subsets(vector<int>& nums) {
+        vector<vector<int>> results;
+        
+        if(nums.size() == 0)
+            return results;
+        
+      // optional : but in case interviewer wants the elements to be inorder either do it here or in the last i.e., to the result vector.
+      //  sort(nums.begin(),nums.end());
+        
+        vector<int> subset;
+        
+        tofindSubsets(nums,results,subset,0);
+        
+        return results;
+    }
+    
+    void tofindSubsets(vector<int>& nums, vector<vector<int>>& results, vector<int>& subset, int start){
+        
+        results.push_back(subset);
+        for(int i=start; i<nums.size(); i++){
+            subset.push_back(nums[i]);
+            tofindSubsets(nums,results,subset,i+1);
+            subset.pop_back(); // backtrack
+        }
+    }
+(II) ITERATIVE
+
+vector<vector<int>> subsets(vector<int>& nums) {
+         vector<vector<int>> results = {{}};
+         if(nums.empty())
+             return results;
+        for(int x:nums){
+            int n = results.size();
+            for(int i=0;i<n;i++){
+                vector<int> r = results[i];
+                r.push_back(x);
+                results.push_back(r);
+            }
+        }
+         return results;
+     }
+
+5.	Find MSB in o(1) 
+Given a number, find the most significant bit number which is set bit and which is in power of two
+
+Examples:
+
+Input : 10
+Output : 8
+Binary representation of 10 is 1010
+The most significant bit corresponds
+to decimal number 8.
+
+Input : 18
+Output : 16
+
+SOLUTION:
+---O(1) , O(1) -----
+int setBitNumber(int n) 
+{ 
+  
+    // To find the position 
+    // of the most significant 
+    // set bit 
+    int k = (int)(log2(n));                   // IF IT WAS LSB --> 1 ON THE RIGHT SIDE THEN USE  --> int k = (int) ((log2(n & -n)) + 1);
+  
+    // To return the the value 
+    // of the number with set 
+    // bit at k-th position 
+    return (int)(pow(2, k)); 
+} 
+  
+// Driver code 
+int main() 
+{ 
+    int n = 273; 
+    cout << setBitNumber(n); 
+    return 0; 
+} 
+Output:
+256
+
+6. Find square of a number without using multiplication or division operators.  
+SOLUTION:
+
+(I) METHOD 1: The idea is based on the addition of the odd numbers
+ 1^2 = 1
+ 2^2 = (1 + 3) = 4
+ 3^3 = (1 + 3 + 5) = 9
+ 4^4 = (1 + 3 + 5 + 7) = 16
+#
+int findSquare(int num){
+ if(num == 0)
+	return 0;
+ int odd = 1;
+ int sq = 0;
+ num = abs(num); // allowing the negative numbers as well
+ 
+ while(num--){
+	sq = sq + odd;
+	odd = odd + 2;
+	}
+  return sq;
+}
+
+(II) METHOD 2: REPEATEDLY ADDING GIVEN NUMBERS TO THE RESULT
+ 5^2 = (5 + 5 + 5 + 5 + 5) = 25
+#
+ int findSquare(int num){
+ if(num == 0)
+	return 0;
+ num = abs(num);
+ int sq = num;
+ for(int i=1;i<num;i++){
+	sq = sq + num;
+  }
+return sq;
+}

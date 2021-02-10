@@ -1,0 +1,363 @@
+1. MAXIMUM PATH SUM IN A MATRIX ( SIMILIAR TO THE MININUM PATH SUM)
+Given an n*m matrix, the task is to find the maximum sum of elements of cell starting from the cell (0, 0) to cell (n-1, m-1).
+However, the allowed moves are right, downwards or diagonally right, i.e, from location (i, j) next move can be (i+1, j), or, (i, j+1), or (i+1, j+1). Find the maximum sum of elements satisfying the allowed moves.
+
+Examples:
+
+Input:
+mat[][] = {{100, -350, -200},
+           {-100, -300, 700}}
+Output: 500
+Explanation: 
+Path followed is 100 -> -300 -> 700
+
+Input:
+mat[][] = {{500, 100, 230},
+           {1000, 300, 100},
+           {200, 1000, 200}}
+Output:
+3000
+Explanation:
+Path followed is 500 -> 1000 -> 300 -> 1000 -> 200
+
+#
+SOLUTION:
+-----BRUTE FORCE ------O(2^N), O(N^2)--------------------------
+-----LITTLE OP---------O(N^2), O(N^2)--------------------------
+-----OPTIMIZED --------O(N^2), O(1)-----------------------------
+
+int maxPathSum(vector<vector<int>>& grid){
+  if(grid.empty())
+	return 0;
+  int m = grid.size();
+  int n = grid[0].size();
+  
+  for(int i=0;i<m;i++){
+     for(int j=0;j<n;j++){
+         if(i>0 && j>0)
+	     grid[i][j]+=max(grid[i-1][j],grid[i][j-1],grid[i-1][j-1]);
+         else if(i>0)
+	     grid[i][j]+=grid[i-1][j];
+	else if(j>0)
+	     grid[i][j]+=grid[i][j-1];
+    }
+  }
+ return grid[m-1][n-1];
+}
+
+2. COMBINATION SUM IV
+Given an integer array with all positive numbers and no duplicates, find the number of possible combinations that add up to a positive integer target.
+
+Example:
+
+nums = [1, 2, 3]
+target = 4
+
+The possible combination ways are:
+(1, 1, 1, 1)
+(1, 1, 2)
+(1, 2, 1)
+(1, 3)
+(2, 1, 1)
+(2, 2)
+(3, 1)
+
+Note that different sequences are counted as different combinations.
+
+Therefore the output is 7.
+ 
+
+Follow up:
+What if negative numbers are allowed in the given array?
+How does it change the problem?
+What limitation we need to add to the question to allow negative numbers?
+
+Credits:
+Special thanks to @pbrother for adding this problem and creating all test cases.
+
+SOLUTION:
+---------------------------O(N*TARGET), O(TARGET)---------------------------------------
+
+int combinationSum4(vector<int>& nums, int target) {
+        if(nums.empty() || target == 0)
+            return 0;
+        vector<unsigned int> dp(target+1,0);
+        dp[0] = 1;
+        int n = nums.size();
+        for(int i=1;i<=target;i++){
+            for(int j=0;j<n;j++){
+                if(i-nums[j] >= 0)
+                    dp[i]+=dp[i-nums[j]];
+            }
+        }
+        return dp[target];
+    }
+
+3. COIN CHANGE 1 (FINDING MINIMUM NUMBER OF COINS REQUIRED TO OBTAIN THE GIVEN SUM)
+You are given coins of different denominations and a total amount of money amount. Write a function to compute the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.
+
+Example 1:
+
+Input: coins = [1, 2, 5], amount = 11
+Output: 3 
+Explanation: 11 = 5 + 5 + 1
+Example 2:
+
+Input: coins = [2], amount = 3
+Output: -1
+Note:
+You may assume that you have an infinite number of each kind of coin.
+#
+
+---------------------------------O(N*AMOUNT), O(AMOUNT)---------------------------------
+
+int coinChange(vector<int>& coins, int amount) {
+        int max = INT_MAX;
+        vector<unsigned int> dp(amount+1,max);
+        dp[0] = 0;
+        int n = coins.size();
+        for(int i=1;i<=amount;i++){
+            for(int j=0;j<n;j++){
+                if(coins[j]<=i)
+                    dp[i]=min(dp[i],dp[i-coins[j]]+1);
+            }
+        }
+        return dp[amount] == max?-1:dp[amount];
+    }
+
+4. COIN CHANGE 2 (UNIQUE NUMBER OF COMBINATION THAT CAN BE FORMED)
+You are given coins of different denominations and a total amount of money. Write a function to compute the number of combinations that make up that amount. You may assume that you have infinite number of each kind of coin.
+
+ 
+
+Example 1:
+
+Input: amount = 5, coins = [1, 2, 5]
+Output: 4
+Explanation: there are four ways to make up the amount:
+5=5
+5=2+2+1
+5=2+1+1+1
+5=1+1+1+1+1
+Example 2:
+
+Input: amount = 3, coins = [2]
+Output: 0
+Explanation: the amount of 3 cannot be made up just with coins of 2.
+Example 3:
+
+Input: amount = 10, coins = [10] 
+Output: 1
+ 
+
+Note:
+
+You can assume that
+
+0 <= amount <= 5000
+1 <= coin <= 5000
+the number of coins is less than 500
+the answer is guaranteed to fit into signed 32-bit integer
+#
+SOLUTION:
+(I) -------------------------------O(N*AMOUNT), O(N*AMOUNT)-------------------------------
+int change(int amount, vector<int>& coins) {
+       int n = coins.size();
+        vector<vector<int>> dp(n+1,vector<int>(amount+1,0));
+        for(int i=0;i<=n;i++){
+            for(int j=0;j<=amount;j++){
+                if(j==0)
+                    dp[i][j] = 1;
+                else if(i==0)
+                    dp[i][j]=0;
+                else
+                    dp[i][j] = dp[i-1][j]+(j-coins[i-1] < 0 ? 0:dp[i][j-coins[i-1]]);
+            }
+        }
+        return dp[n][amount];
+    }
+
+(II) --------------------------------O(N*AMOUNT), O(AMOUNT)-------------------------------
+int change(int amount, vector<int>& coins) {
+        vector<int> dp(amount+1,0);
+        dp[0] = 1;
+        for(int c:coins){
+            for(int j=c;j<=amount;j++){
+                dp[j]+=dp[j-c];
+            }
+        }
+        return dp[amount];
+    }
+
+5. SUBSET SUM PROBLEM 
+Given a set of non-negative integers, and a value sum, determine if there is a subset of the given set with sum equal to given sum.
+Example:
+
+Input: set[] = {3, 34, 4, 12, 5, 2}, sum = 9
+Output: True  
+There is a subset (4, 5) with sum 9.
+
+Input: set[] = {3, 34, 4, 12, 5, 2}, sum = 30
+Output: False
+There is no subset that add up to 30.
+#
+SOLUTION:
+----BRUTE FORCE ---USE RECURSION ----O(2^N), O(N^2)--------------
+----OPTIMIZED SOLUTION------DP-------O(N*SUM), O(N*SUM)-----------
+
+bool isSubsetSum(vector<bool>& set, int sum){
+ if(set.empty())
+	return true;
+ int n = set.size();
+ vector<vector<bool>> dp(n+1,vector<bool>(sum+1,false));
+
+ for(int i=0;i<=n;i++){
+    for(int j=0;j<=sum;j++){
+      if(i==0)
+	dp[i][j]= true;
+      else if(j==0)
+	dp[i][j]=false;
+      else if(j-set[i-1] >= 0)
+	dp[i][j] = dp[i-1][j] || dp[i-1][j-set[i-1]];
+      else
+	dp[i][j] = dp[i-1][j];
+  }
+ }
+return dp[n][sum];
+}
+
+6. EGG DROPPING
+The following is a description of the instance of this famous puzzle involving n=2 eggs and a building with k=36 floors.
+Suppose that we wish to know which stories in a 36-story building are safe to drop eggs from, and which will cause the eggs to break on landing. We make a few assumptions:
+
+…..An egg that survives a fall can be used again.
+…..A broken egg must be discarded.
+…..The effect of a fall is the same for all eggs.
+…..If an egg breaks when dropped, then it would break if dropped from a higher floor.
+…..If an egg survives a fall then it would survive a shorter fall.
+…..It is not ruled out that the first-floor windows break eggs, nor is it ruled out that the 36th-floor do not cause an egg to break.
+
+If only one egg is available and we wish to be sure of obtaining the right result, the experiment can be carried out in only one way. Drop the egg from the first-floor window; if it survives, drop it from the second-floor window. Continue upward until it breaks. In the worst case, this method may require 36 droppings. Suppose 2 eggs are available. What is the least number of egg-droppings that is guaranteed to work in all cases?
+The problem is not actually to find the critical floor, but merely to decide floors from which eggs should be dropped so that the total number of trials are minimized.
+
+#
+SOLUTION:
+---------------------------O(E*N*N), O(E*N) ---------- E- EGGS & N- FLOORS---------------
+
+int eggDrop(int n, int e){
+vector<vector<int>> dp(n+1,vector<int>(e+1,0));
+int res,i,j,x;
+for(i=0;i<=e;i++)
+	dp[1][i]=1;
+for(i=0;i<=n;i++)
+	dp[i][1]=i;
+for(i=2;i<=n;i++){
+	for(j=2;j<=e;j++){
+		dp[i][j] = INT_MAX;
+		for(x=1;x<i;x++){
+			res = max(dp[x-1][j-1],dp[i-x][j])+1;
+			if(res < dp[i][j])
+				dp[i][j] = res;
+			}
+ 		}
+ 	}
+return dp[n][e];
+}
+
+7. ROD CUTTING
+Given an integer N denoting the Length of a line segment. you need to cut the line segment in such a way that the cut length of a line segment each time is integer either x , y or z. and after performing all 
+cutting operation the total number of cutted segments must be maximum. 
+
+Input
+First line of input contains of an integer 'T' denoting number of test cases. First line of each testcase contains N . Second line of each testcase contains 3 space separated integers x , y and z.
+
+Output
+For each test case print in a new line an integer corresponding to the answer .
+
+Constraints
+1<=t<=70
+1<=N,x,y,z<=4000
+ 
+Example
+Input
+2
+4
+2 1 1
+5
+5 3 2
+
+Output
+4
+2
+
+In first test case, total length is 4, and cut lengths are 2, 1 and 1.  We can make maximum 4 segments each of length 1. In secon test case, we can make two segments of lengths 3 and 2.
+
+SOLUTION:
+----------O(M*N), O(M*N) ---------------------------------------------------------
+
+int rodcut(vector<int>& val, int n){
+ int m = val.size();
+ vector<vector<int>> dp(m+1, vector<int>(n+1,0));
+ for(int i=0;i<=m;i++){
+    for(int j=0;j<=n;j++){
+        if(i>j)
+		dp[i][j] = dp[i-1][j];
+	else
+		dp[i][j] = max(dp[i-1][j], val[i-1]+dp[i][j-1]);
+    }
+  }
+ return dp[m][n];
+ }
+
+8. WORD BREAK
+Given a non-empty string s and a dictionary wordDict containing a list of non-empty words, determine if s can be segmented into a space-separated sequence of one or more dictionary words.
+
+Note:
+
+The same word in the dictionary may be reused multiple times in the segmentation.
+You may assume the dictionary does not contain duplicate words.
+Example 1:
+
+Input: s = "leetcode", wordDict = ["leet", "code"]
+Output: true
+Explanation: Return true because "leetcode" can be segmented as "leet code".
+Example 2:
+
+Input: s = "applepenapple", wordDict = ["apple", "pen"]
+Output: true
+Explanation: Return true because "applepenapple" can be segmented as "apple pen apple".
+             Note that you are allowed to reuse a dictionary word.
+Example 3:
+
+Input: s = "catsandog", wordDict = ["cats", "dog", "sand", "and", "cat"]
+Output: false
+
+#
+SOLUTION:
+
+--------------------------------------O(N^2), O(N) -------------------------------------
+bool wordBreak(string s, vector<string> &w) {
+        if(w.size()==0) 
+            return false;
+        unordered_set<string> dict(w.begin(),w.end());
+        vector<bool> dp(s.size()+1,false);
+        dp[0]=true;
+        
+        for(int i=1;i<=s.size();i++)
+        {
+            for(int j=i-1;j>=0;j--)
+            {
+                if(dp[j])
+                {
+                    string word = s.substr(j,i-j);
+                    if(dict.find(word)!= dict.end())
+                    {
+                        dp[i]=true;
+                        break; //next i
+                    }
+                }
+            }
+        }
+        
+        return dp[s.size()];
+    }

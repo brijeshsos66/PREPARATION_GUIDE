@@ -1,0 +1,651 @@
+Day24: (Graph)
+
+1.	Djisktra’s Algorithm 
+(shortest paths from source to all vertices in the given graph.)
+----SINGLE SOURCE SHORTEST PATH TO ALL THE REST VERTICES ------
+------O(ELOGV), O(V) ----------------------------------------
+#
+
+#include<bits/stdc++.h>
+using namespace std;
+
+typedef pair<int,int> ipair;
+
+void addEdge(vector<pair<int,int>> adj[], int u,int v, int w){
+    adj[u].push_back(make_pair(v,w));
+    adj[v].push_back(make_pair(u,w));
+}
+
+void shortestPath(vector<pair<int,int>> adj[],int V, int src){
+    // priority queue --> making min heap
+    priority_queue<ipair, vector<ipair>, greater<ipair>> pq;
+     
+    //making a distance vector
+    vector<int> dist(V,INT_MAX);
+    
+    //inserting the source at the priority_queue & assigning its distance as 0 in dist vector
+    pq.push(make_pair(0,src));
+    dist[src] = 0;
+    
+    while(!pq.empty()){
+        
+        //dist will be stored in the first & vertex will be stored in the second 
+        int u = pq.top().second;
+        pq.pop();
+        
+        for(auto x: adj[u]){
+            // getting the current vertex adjacent vertices and the weight
+            int v = x.first;
+            int w = x.second;
+            
+            // if there exits a shorter path to v through u
+            if(dist[v] > dist[u]+w){
+                dist[v] = dist[u]+w;
+                pq.push(make_pair(dist[v],v));
+            }
+        }
+    }
+    cout<<"vertex distance from source to the rest vertex are:\n";
+    for(int i=0;i<V;i++){
+        cout<<i<<" "<<dist[i]<<endl;
+    }
+    }
+    int main(){
+        int V = 6;
+        vector<ipair> adj[V];
+        
+        addEdge(adj,0,1,6);
+        addEdge(adj,0,2,4);
+        addEdge(adj,1,2,1);
+        addEdge(adj,1,3,2);
+        addEdge(adj,2,4,7);
+        addEdge(adj,3,4,3);
+        addEdge(adj,3,5,1);
+        addEdge(adj,4,5,2);
+        shortestPath(adj,V,0);
+        return 0;
+    }
+
+2. BELLMANFORD ALGORITHM (SINGLE SOURCE SHORTEST PATH TO ALL OTHER VERTICES)
+--------------GIVES CORRECT ANSWER FOR THE NEGATIVE EDGES AS WELL ------
+------O(E*V), O(V) ---------------------------------------------------------
+
+CONCEPT: https://www.geeksforgeeks.org/bellman-ford-algorithm-simple-implementation/
+
+#
+#include<bits/stdc++.h>
+using namespace std;
+
+void bellmanford(int graph[][3], int V, int E, 
+                 int src) 
+{ 
+    // Initialize distance of all vertices as infinite. 
+    int dis[V]; 
+    for (int i = 0; i < V; i++) 
+        dis[i] = INT_MAX; 
+  
+    // initialize distance of source as 0 
+    dis[src] = 0; 
+  
+    // Relax all edges |V| - 1 times. A simple 
+    // shortest path from src to any other 
+    // vertex can have at-most |V| - 1 edges 
+    for (int i = 0; i < V - 1; i++) { 
+        for (int j = 0; j < E; j++) { 
+            int u = graph[j][0], v = graph[j][1], w = graph[j][2];
+            if (dis[u]!=INT_MAX && dis[u] + w < dis[v]) 
+                dis[v] = dis[u] + w; 
+        } 
+    } 
+  
+    // check for negative-weight cycles. 
+    // The above step guarantees shortest 
+    // distances if graph doesn't contain 
+    // negative weight cycle.  If we get a 
+    // shorter path, then there is a cycle. 
+    for (int j = 0; j < E; j++) { 
+        int u = graph[j][0], v = graph[j][1], w = graph[j][2];
+            if(dis[u]!=INT_MAX && dis[u] + w < dis[v]){ 
+                cout<<"graph contains negative edge cycle";
+                return;
+            }
+    } 
+  
+    cout << "Vertex Distance from Source" << endl; 
+    for (int i = 0; i < V; i++) 
+        cout << i << "\t\t" << dis[i] << endl; 
+} 
+int main(){
+    int V=5,E=8;
+    int graph[][3] = {{0,1,-1},{0,2,4},{1,2,3},{1,3,2},{3,2,5},{3,1,1},{1,4,2},{4,3,-3}};  
+    bellmanford(graph,V,E,0);
+    return 0;
+}
+
+3. FLOYD WARSHALL ALGORITHM (ALL PAIR SHORTEST PATH)
+---------O(V^3), O(V^2) --------------------------
+The Floyd Warshall Algorithm is for solving the All Pairs Shortest Path problem. The problem is to find shortest distances between every pair of vertices in a given edge weighted directed Graph.
+Example:
+
+Input:
+       graph[][] = { {0,   5,  INF, 10},
+                    {INF,  0,  3,  INF},
+                    {INF, INF, 0,   1},
+                    {INF, INF, INF, 0} }
+which represents the following graph
+             10
+       (0)------->(3)
+        |         /|\
+      5 |          |
+        |          | 1
+       \|/         |
+       (1)------->(2)
+            3       
+Note that the value of graph[i][j] is 0 if i is equal to j 
+And graph[i][j] is INF (infinite) if there is no edge from vertex i to j.
+
+Output:
+Shortest distance matrix
+      0      5      8      9
+    INF      0      3      4
+    INF    INF      0      1
+    INF    INF    INF      0
+CONCEPT: https://www.geeksforgeeks.org/floyd-warshall-algorithm-dp-16/
+
+#
+
+#include <bits/stdc++.h> 
+using namespace std; 
+#define V 4
+#define INF 100000  
+ void floydWarshall(int graph[][V]){
+     int dist[V][V],i,j,k;
+     
+     for(int i=0;i<V;i++){
+         for(int j=0;j<V;j++){
+             dist[i][j] = graph[i][j];
+         }
+     }
+     
+     for(int k=0;k<V;k++){
+         for(int i=0;i<V;i++){
+             for(int j=0;j<V;j++){
+                 if(dist[i][j] > dist[i][k]+dist[k][j]){
+                     dist[i][j] = dist[i][k]+dist[k][j];
+                 }
+             }
+         }
+     }
+     
+     cout<<"printing all pairs shortest paths:"<<endl;
+     for(int i=0;i<V;i++){
+         for(int j=0;j<V;j++){
+             if(dist[i][j] == INF){
+                 cout<<"INF"<<" ";
+             }
+             else{
+                 cout<<dist[i][j]<<" ";
+             }
+         }
+         cout<<endl;
+     }
+     
+ }
+
+int main() 
+{
+    int graph[V][V] = {  { 0, 5, INF, 10 }, 
+                         { INF, 0, 3, INF }, 
+                         { INF, INF, 0, 1 }, 
+                         { INF, INF, INF, 0 }
+                       }; 
+  
+    floydWarshall(graph);
+    return 0; 
+}
+
+4. DETECTING CYCLE USING THE FLOYD WARSHALL ALGORITHM
+------------------------O(V*V*V), O(V*V) ----------------------
+#
+#include <bits/stdc++.h> 
+using namespace std; 
+#define V 4
+#define INF 100000  
+ bool detectcyclefloydWarshall(int graph[][V]){
+     int dist[V][V],i,j,k;
+     
+     for(int i=0;i<V;i++){
+         for(int j=0;j<V;j++){
+             dist[i][j] = graph[i][j];
+         }
+     }
+     
+     for(int k=0;k<V;k++){
+         for(int i=0;i<V;i++){
+             for(int j=0;j<V;j++){
+                 if(dist[i][j] > dist[i][k]+dist[k][j]){
+                     dist[i][j] = dist[i][k]+dist[k][j];
+                 }
+             }
+         }
+     }
+    //cycle
+     for(int i=0;i<V;i++){
+         if(dist[i][i]<0){
+             return true;
+         }
+     }
+     return false;
+ }
+
+int main() 
+{
+    int graph[V][V] = {  { 0, 5, INF, 10 }, 
+                         { INF, 0, 3, INF }, 
+                         { INF, INF, 0, 1 }, 
+                         { INF, INF, INF, 0 }
+                       }; 
+  
+    if(detectcyclefloydWarshall(graph))
+        cout<<"negative weight cycle is present";
+    else
+        cout<<"negative weight cycle is not present";
+    return 0; 
+} 
+
+5. SCC(using KosaRaju’s algo) 
+A directed graph is strongly connected if there is a path between all pairs of vertices. A strongly connected component (SCC) of a directed graph 
+is a maximal strongly connected subgraph.
+We can find all strongly connected components in O(V+E) time using Kosaraju’s algorithm. Following is detailed Kosaraju’s algorithm.
+1) Create an empty stack ‘S’ and do DFS traversal of a graph. In DFS traversal, after calling recursive DFS for adjacent vertices of a vertex, push 
+the vertex to stack. In the above graph, if we start DFS from vertex 0, we get vertices in stack as 1, 2, 4, 3, 0.
+2) Reverse directions of all arcs to obtain the transpose graph.
+3) One by one pop a vertex from S while S is not empty. Let the popped vertex be ‘v’. Take v as source and do DFS (call DFSUtil(v)). The DFS starting from v prints strongly connected component of v. In the above example, we process vertices in order 0, 3, 4, 2, 1 (One by one popped from stack).
+
+CONCEPT: https://www.geeksforgeeks.org/strongly-connected-components/
+------O(V+E), O(V+E) ---------------------------------------------------------------------------------------------
+
+#
+#include<bits/stdc++.h>
+using namespace std;
+
+class Graph{
+    int V;
+    vector<vector<int>> adj;
+    
+    public:
+    Graph(int v): V(v), adj(v){
+    } 
+    
+    void addedge(int u, int v){
+        adj[u].push_back(v);
+    }
+    
+    void dfs(int v, vector<bool>& visited, stack<int>& s){
+        visited[v] = true;
+        for(auto i:adj[v]){
+            if(!visited[i]){
+                dfs(i,visited,s);
+            }
+        }
+        s.push(v);
+    }
+    
+    Graph getTranspose(){
+        Graph g(V);
+        for(int v = 0;v<V;v++){
+            for(auto i:adj[v]){
+                g.adj[i].push_back(v);
+            }
+        }
+        return g;
+    }
+    
+    void revdfs(int v, vector<bool>& visited){
+        visited[v] = true;
+        cout<<v<<" ";
+        for(auto i:adj[v]){
+            if(!visited[i]){
+                revdfs(i,visited);
+            }
+        }
+    }
+    
+    void printSCC(){
+        stack<int> s;
+        vector<bool> visited(V, false);
+        for(int i=0;i<V;i++){
+            if(!visited[i]){
+                dfs(i,visited,s);
+            }
+        }
+        Graph g = getTranspose();
+        for(int i=0;i<V;i++)
+            visited[i] = false;
+            
+        while(!s.empty()){
+            int v = s.top();
+            s.pop();
+            if(!visited[v]){
+                g.revdfs(v,visited);
+                cout<<endl;
+            }
+        }
+    }
+};
+
+int main(){
+    Graph g(5);
+    g.addedge(1,0);
+    g.addedge(0,2);
+    g.addedge(2,1);
+    g.addedge(0,3);
+    g.addedge(3,4);
+    
+    cout<<"SCC ARE:"<<endl;
+    g.printSCC();
+    return 0;
+}
+
+6. PRIM ALGORITHM FOR FINDING MST
+  --------------PRIMS AND KRUSKAL UNDERSTANDING LINK : https://www.youtube.com/watch?v=4ZlRH0eK-qQ -----------------------------------------------------------------------
+
+We have discussed Kruskal’s algorithm for Minimum Spanning Tree. Like Kruskal’s algorithm, Prim’s algorithm is also a Greedy algorithm. It starts with an empty spanning tree. 
+The idea is to maintain two sets of vertices. The first set contains the vertices already included in the MST, the other set contains the vertices not yet included. At every 
+step, it considers all the edges that connect the two sets, and picks the minimum weight edge from these edges. After picking the edge, it moves the other endpoint of the edge
+ to the set containing MST.
+A group of edges that connects two set of vertices in a graph is called cut in graph theory. So, at every step of Prim’s algorithm, we find a cut (of two sets, one contains the 
+vertices already included in MST and other contains rest of the verices), pick the minimum weight edge from the cut and include this vertex to MST Set (the set that contains already
+included vertices).
+
+How does Prim’s Algorithm Work? The idea behind Prim’s algorithm is simple, a spanning tree means all vertices must be connected. So the two disjoint subsets (discussed above) of 
+vertices must be connected to make a Spanning Tree. And they must be connected with the minimum weight edge to make it a Minimum Spanning Tree.
+
+Algorithm
+1) Create a set mstSet that keeps track of vertices already included in MST.
+2) Assign a key value to all vertices in the input graph. Initialize all key values as INFINITE. Assign key value as 0 for the first vertex so that it is picked first.
+3) While mstSet doesn’t include all vertices
+….a) Pick a vertex u which is not there in mstSet and has minimum key value.
+….b) Include u to mstSet.
+….c) Update key value of all adjacent vertices of u. To update the key values, iterate through all adjacent vertices. For every adjacent vertex v, if weight of edge u-v is less than 
+the previous key value of v, update the key value as weight of u-v
+
+The idea of using key values is to pick the minimum weight edge from cut. The key values are used only for vertices which are not yet included in MST, the key value for these vertices 
+indicate the minimum weight edges connecting them to the set of vertices included in MST.
+
+-------USING ADJACENCY MATRIX --------O(V^2), O(V) -------------------
+-------USING ADJACENCY LIST ----------O(ELOGV),O(V)------------------
+We use a boolean array mstSet[] to represent the set of vertices included in MST. If a value mstSet[v] is true, then vertex v is included in MST, otherwise not. Array key[] is used to 
+store key values of all vertices. Another array parent[] to store indexes of parent nodes in MST. The parent array is the output array which is used to show the constructed MST.
+
+#
+#include<bits/stdc++.h>
+using namespace std;
+#define V 5
+int minkey(int key[], bool mstset[]){
+    int min = INT_MAX, min_index;
+    for(int v=0;v<V;v++){
+        if(mstset[v]==false && key[v]<min){
+            min = key[v];
+            min_index = v;
+        }
+    }
+    return min_index;
+}
+
+void printmst(int parent[], int graph[V][V]){
+    cout<<"edge"<<"\t"<<"weight"<<endl;
+    for(int i=1;i<V;i++)
+        cout<<parent[i]<<"-"<<i<<"\t"<<graph[i][parent[i]]<<endl;
+}
+
+void prim(int graph[V][V]){
+    int parent[V], key[V];
+    bool mstset[V];
+    for(int i=0;i<V;i++){
+        key[i] = INT_MAX;
+        mstset[i]= false;
+    }
+    key[0] = 0;
+    parent[0] = -1;
+    for(int count = 0;count<V-1;count++){
+        int u = minkey(key,mstset);
+        mstset[u] = true;
+        for(int v=0;v<V;v++){
+            if(graph[u][v] && !mstset[v] && graph[u][v]<key[v]){
+                parent[v] = u;
+                key[v] = graph[u][v];
+            }
+        }
+    }
+        printmst(parent,graph);
+    }
+int main(){
+    int graph[V][V] = {{0,2,0,6,0},{2,0,3,8,5},{0,3,0,0,7},{6,8,0,0,9},{0,5,7,9,0}};
+    prim(graph);
+    return 0;
+}
+
+7. KRUSKAL ALGORITHM - FOR FINDING THE MST
+Below are the steps for finding MST using Kruskal’s algorithm
+
+Sort all the edges in non-decreasing order of their weight.
+Pick the smallest edge. Check if it forms a cycle with the spanning tree formed so far. If cycle is not formed, include this edge. Else, discard it.
+Repeat step#2 until there are (V-1) edges in the spanning tree.
+
+----------O(ELOGV),O(V) --------O(ELOGE), O(V) ------------------------------------------------------
+
+Use a vector of edges which consist of all the edges in the graph and each item of a vector will contain 3 parameters: source, destination and the cost of an edge between the source and destination.
+		vector<pair<int, pair<int, int> > > edges;
+Here in the outer pair (i.e pair<int,pair<int,int> > ) the first element corresponds to the cost of a edge while the second element is itself a pair, and it contains two vertices of edge.
+
+Use the inbuilt std::sort to sort the edges in the non-decreasing order; by default the sort function sort in non-decreasing order.
+We use the Union Find Algorithm to check if it the current edge forms a cycle if it is added in the current MST. If yes discard it, else include it (union).
+Pseudo Code:
+
+// Initialize result
+mst_weight = 0
+
+// Create V single item sets
+for each vertex v
+	parent[v] = v;
+	rank[v] = 0;
+
+Sort all edges into non decreasing 
+order by weight w
+
+for each (u, v) taken from the sorted list  E
+    do if FIND-SET(u) != FIND-SET(v)
+        print edge(u, v)
+        mst_weight += weight of edge(u, v)
+        UNION(u, v)
+
+#
+
+#include <bits/stdc++.h> 
+using namespace std; 
+  
+// a structure to represent a weighted edge in graph  
+class Edge  
+{  
+    public: 
+    int src, dest, weight;  
+};  
+  
+// a structure to represent a connected, undirected  
+// and weighted graph  
+class Graph  
+{  
+    public: 
+    // V-> Number of vertices, E-> Number of edges  
+    int V, E;  
+  
+    // graph is represented as an array of edges.  
+    // Since the graph is undirected, the edge  
+    // from src to dest is also edge from dest  
+    // to src. Both are counted as 1 edge here.  
+    Edge* edge;  
+};  
+  
+// Creates a graph with V vertices and E edges  
+Graph* createGraph(int V, int E)  
+{  
+    Graph* graph = new Graph;  
+    graph->V = V;  
+    graph->E = E;  
+  
+    graph->edge = new Edge[E];  
+  
+    return graph;  
+}  
+  
+// A structure to represent a subset for union-find  
+class subset  
+{  
+    public: 
+    int parent;  
+    int rank;  
+};  
+  
+// A utility function to find set of an element i  
+// (uses path compression technique)  
+int find(subset subsets[], int i)  
+{  
+    // find root and make root as parent of i  
+    // (path compression)  
+    if (subsets[i].parent != i)  
+        subsets[i].parent = find(subsets, subsets[i].parent);  
+  
+    return subsets[i].parent;  
+}  
+  
+// A function that does union of two sets of x and y  
+// (uses union by rank)  
+void Union(subset subsets[], int x, int y)  
+{  
+    int xroot = find(subsets, x);  
+    int yroot = find(subsets, y);  
+  
+    // Attach smaller rank tree under root of high  
+    // rank tree (Union by Rank)  
+    if (subsets[xroot].rank < subsets[yroot].rank)  
+        subsets[xroot].parent = yroot;  
+    else if (subsets[xroot].rank > subsets[yroot].rank)  
+        subsets[yroot].parent = xroot;  
+  
+    // If ranks are same, then make one as root and  
+    // increment its rank by one  
+    else
+    {  
+        subsets[yroot].parent = xroot;  
+        subsets[xroot].rank++;  
+    }  
+}  
+  
+// Compare two edges according to their weights.  
+// Used in qsort() for sorting an array of edges  
+int myComp(const void* a, const void* b)  
+{  
+    Edge* a1 = (Edge*)a;  
+    Edge* b1 = (Edge*)b;  
+    return a1->weight > b1->weight;  
+}  
+  
+// The main function to construct MST using Kruskal's algorithm  
+void KruskalMST(Graph* graph)  
+{  
+    int V = graph->V;  
+    Edge result[V]; // Tnis will store the resultant MST  
+    int e = 0; // An index variable, used for result[]  
+    int i = 0; // An index variable, used for sorted edges  
+  
+    // Step 1: Sort all the edges in non-decreasing  
+    // order of their weight. If we are not allowed to  
+    // change the given graph, we can create a copy of  
+    // array of edges  
+    qsort(graph->edge, graph->E, sizeof(graph->edge[0]), myComp);  
+  
+    // Allocate memory for creating V ssubsets  
+    subset *subsets = new subset[( V * sizeof(subset) )];  
+  
+    // Create V subsets with single elements  
+    for (int v = 0; v < V; ++v)  
+    {  
+        subsets[v].parent = v;  
+        subsets[v].rank = 0;  
+    }  
+  
+    // Number of edges to be taken is equal to V-1  
+    while (e < V - 1 && i < graph->E)  
+    {  
+        // Step 2: Pick the smallest edge. And increment  
+        // the index for next iteration  
+        Edge next_edge = graph->edge[i++];  
+  
+        int x = find(subsets, next_edge.src);  
+        int y = find(subsets, next_edge.dest);  
+  
+        // If including this edge does't cause cycle,  
+        // include it in result and increment the index  
+        // of result for next edge  
+        if (x != y)  
+        {  
+            result[e++] = next_edge;  
+            Union(subsets, x, y);  
+        }  
+        // Else discard the next_edge  
+    }  
+  
+    // print the contents of result[] to display the  
+    // built MST  
+    cout<<"Following are the edges in the constructed MST\n";  
+    for (i = 0; i < e; ++i)  
+        cout<<result[i].src<<" -- "<<result[i].dest<<" == "<<result[i].weight<<endl;  
+    return;  
+}  
+  
+// Driver code 
+int main()  
+{  
+    /* Let us create following weighted graph  
+            10  
+        0--------1  
+        | \ |  
+    6| 5\ |15  
+        | \ |  
+        2--------3  
+            4 */
+    int V = 4; // Number of vertices in graph  
+    int E = 5; // Number of edges in graph  
+    Graph* graph = createGraph(V, E);  
+  
+  
+    // add edge 0-1  
+    graph->edge[0].src = 0;  
+    graph->edge[0].dest = 1;  
+    graph->edge[0].weight = 10;  
+  
+    // add edge 0-2  
+    graph->edge[1].src = 0;  
+    graph->edge[1].dest = 2;  
+    graph->edge[1].weight = 6;  
+  
+    // add edge 0-3  
+    graph->edge[2].src = 0;  
+    graph->edge[2].dest = 3;  
+    graph->edge[2].weight = 5;  
+  
+    // add edge 1-3  
+    graph->edge[3].src = 1;  
+    graph->edge[3].dest = 3;  
+    graph->edge[3].weight = 15;  
+  
+    // add edge 2-3  
+    graph->edge[4].src = 2;  
+    graph->edge[4].dest = 3;  
+    graph->edge[4].weight = 4;  
+  
+    KruskalMST(graph);  
+  
+    return 0;  
+}  

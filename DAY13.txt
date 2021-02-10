@@ -1,0 +1,561 @@
+DAY 13: (STACKS & QUEUES)
+
+1. IMPLEMENT STACK
+--->OPERATION --isempty(), pop(), push(), show_top(), & displayStack().
+ ----------------O(1) -----O(1) ---O(1) ----O(1) -------O(N) ---------
+#include <iostream>
+
+using namespace std;
+#define MAX 100
+
+class stack{
+int top;
+public:
+int A[MAX];
+ stack(){
+     top=-1;
+ }
+ bool isempty(){
+    if(top==-1)
+        return true;
+    else
+        return false;
+ }
+ void push(int value){
+     if(top == MAX-1){
+         cout<<"Stack is full";
+     }
+     else{
+         top++;
+         A[top]=value;
+     }
+ }
+ void pop(){
+    if(isempty())
+        cout<<"Stack is empty";
+    else
+        top--;
+ }
+ void top1(){
+    if(isempty())
+        cout<<"Stack is empty";
+    else
+        cout<<A[top];
+ }
+ void displayStack(){
+    if(isempty())
+        cout<<"Stack is empty";
+    else{
+        for(int i=0;i<=top;i++){
+            cout<<A[i]<<" ";
+        }
+    }
+ }
+};
+
+int main()
+{
+  stack s1;
+  s1.pop();
+  s1.push(2);
+  s1.push(3);
+  s1.push(4);
+  s1.top1();
+  s1.pop();
+  s1.displayStack();
+    return 0;
+}
+
+2. IMPLEMENT QUEUE
+----- OPERATIONS --------isempty(), enqueue(), dequeue() ,show_front(), displayQueue(), show_back() ->(OPTIONAL)
+--------------------------O(1) ----O(1) --------O(1)-------O(1) ---------O(N) -------------O(1)------ 
+
+#define MAX 5
+class queue{
+  int front, rear;
+  public:
+  int A[MAX];
+  queue(){
+      front = -1;
+      rear = -1;
+  }
+  bool isempty(){
+    if(front == -1 && rear == -1)
+        return true;
+    else
+        return false;
+  }
+  void enqueue(int value){
+    if(front == -1)
+            front = 0;
+            
+    if(rear == MAX-1)
+        cout<<"Queue is full \n";
+    else
+            A[++rear] = value;
+        
+  }
+  void dequeue(){
+    if(isempty())
+        cout<<"Queue is empty"<<endl;
+    else{
+        if(front == rear)
+            front = rear = -1;
+        else
+            front++;
+    }
+  }
+  void show_front(){
+    if(isempty())
+        cout<<"Queue is empty \n";
+    else
+        cout<<A[front]<<endl;
+  }
+  void show_back(){
+    if(isempty())
+        cout<<"Queue is empty \n";
+    else
+        cout<<A[rear]<<endl;
+  }
+  void displayQueue(){
+    if(isempty())
+        cout<<"Queue is empty\n";
+    else{
+        for(int i=front;i<=rear;i++){
+            cout<<A[i]<<" ";
+        }
+        cout<<endl;
+  }
+  }
+};
+int main()
+{
+    queue q1;
+    q1.enqueue(1);
+    q1.displayQueue();
+    q1.enqueue(2);
+    q1.displayQueue();
+    q1.enqueue(3);
+    q1.displayQueue();
+    q1.enqueue(4);
+    q1.displayQueue();
+    q1.dequeue();
+    q1.dequeue();
+    q1.displayQueue();
+    q1.show_front();
+    q1.show_back();
+    return 0;
+}
+
+3. IMPLEMETING STACK FROM QUEUES 
+TWO METHOD :
+(I) MAKING THE PUSH OPERATION COSTLY ----O(N)--PUSH, O(1) ---POP
+
+ALGO:-
+1. By making PUSH costly
+
+push(s, x) // x is the element to be pushed and s is stack
+  1) Enqueue x to q2
+  2) One by one dequeue everything from q1 and enqueue to q2.
+  3) Swap the names of q1 and q2 
+// Swapping of names is done to avoid one more movement of all elements 
+// from q2 to q1. 
+
+pop(s)
+  1) Dequeue an item from q1 and return it.
+#
+class Stack{
+    queue<int> q1, q2;
+    int curr_size;
+    public:
+    Stack(){ curr_size = 0; }
+    
+    void push(int x){
+        curr_size++;
+        
+        q2.push(x);
+        
+        while(!q1.empty()){
+            q2.push(q1.front());
+            q1.pop();
+        }
+        
+        // swap q1 elements with q2
+        queue<int> q = q1;
+        q1 = q2;
+        q2 = q;
+    }
+    void pop(){
+        q1.pop();
+        curr_size--;
+    }
+    int size(){
+        return curr_size;
+    }
+    int top(){
+        if(q1.empty())
+            return -1;
+        return q1.front();
+    }
+};
+int main()
+{
+    Stack s1;
+    cout<<s1.size()<<endl;
+    cout<<s1.top()<<endl;
+    s1.push(1);
+    s1.push(5);
+    s1.push(3);
+    s1.pop();
+    s1.push(2);
+    s1.pop();
+    cout<<s1.size() <<endl;
+    cout<<s1.top();
+    return 0;
+}
+
+(II) MAKING THE POP OPERATION COSTLY -----O(1) --PUSH, O(N) -----POP
+
+2. By making POP costly
+
+push(s,  x)
+  1) Enqueue x to q1 (assuming size of q1 is unlimited).
+
+pop(s)  
+  1) One by one dequeue everything except the last element from q1 and enqueue to q2.
+  2) Dequeue the last item of q1, the dequeued item is result, store it.
+  3) Swap the names of q1 and q2
+  4) Return the item stored in step 2.
+// Swapping of names is done to avoid one more movement of all elements 
+// from q2 to q1
+#
+class Stack{
+    queue<int> q1, q2;
+    int curr_size;
+    public:
+    Stack(){ curr_size = 0; }
+    
+    void push(int x){
+        curr_size++;
+        q1.push(x);
+    }
+    void pop(){
+        if(q1.empty())
+            return;
+        while(q1.size()!=1){
+            q2.push(q1.front());
+            q1.pop();
+        }
+        //pop the only item lett in q1
+        q1.pop();
+        curr_size--;
+        
+        //swap
+        queue<int> q = q1;
+        q1 = q2;
+        q2 = q;
+    }
+    int size(){
+        return curr_size;
+    }
+    
+    int top() 
+    { 
+        if (q1.empty()) 
+            return -1; 
+  
+        while (q1.size() != 1) { 
+            q2.push(q1.front()); 
+            q1.pop(); 
+        } 
+  
+        // last pushed element 
+        int temp = q1.front(); 
+  
+        // to empty the auxiliary queue after 
+        // last operation 
+        q1.pop(); 
+  
+        // push last element to q2 
+        q2.push(temp); 
+  
+        // swap the two queues names 
+        queue<int> q = q1; 
+        q1 = q2; 
+        q2 = q; 
+        return temp; 
+    } 
+};
+int main()
+{
+    Stack s1;
+    cout<<s1.size()<<endl;
+    cout<<s1.top()<<endl;
+    s1.push(1);
+    s1.push(5);
+    s1.push(3);
+    s1.pop();
+    s1.push(2);
+    s1.pop();
+    cout<<s1.size() <<endl;
+    cout<<s1.top();
+    return 0;
+}
+
+4. IMPLEMENTING QUEUE USING STACKS
+(I) MAKING THE ENQUEUE COSTLY ------O(N)- ENQUEUE, O(1) - DEQUEUE
+Algo: EnQueue Costly
+
+enQueue(q, x)
+  1) While stack1 is not empty, push everything from stack1 to stack2.
+  2) Push x to stack1 (assuming size of stacks is unlimited).
+  3) Push everything back to stack1.
+Here time complexity will be O(n)
+
+deQueue(q)
+  1) If stack1 is empty then error
+  2) Pop an item from stack1 and return it
+Here time complexity will be O(1)
+#
+
+class Queue{
+  stack<int> s1,s2;
+  int curr_size;
+  public:
+  
+  Queue(){
+      curr_size = 0;
+  }
+  
+  void enqueue(int x){
+      //Move all the elements from s1 to s2
+      curr_size++;
+      while(!s1.empty()){
+          s2.push(s1.top());
+          s1.pop();
+      }
+      
+      // store the value x in s2
+      s2.push(x);
+      //store back all elements in the s1 from s2
+      while(!s2.empty()){
+          s1.push(s2.top());
+          s2.pop();
+      }
+  }
+  
+  int dequeue(){
+    if(s1.empty())
+        return -1;
+    int x = s1.top();
+    s1.pop();
+    curr_size--;
+    return x;
+  }
+};
+int main(){
+    Queue q1;
+    q1.enqueue(1);
+    q1.enqueue(2);
+    q1.enqueue(3);
+    cout<<q1.dequeue()<<endl;
+    cout<<q1.dequeue()<<endl;
+    cout<<q1.dequeue()<<endl;
+    return 0;
+}
+
+(II) MAKING THE DEQUEUE COSTLY ------O(1)- ENQUEUE, O(N) - DEQUEUE
+Algo: DeQueue Costly
+
+enQueue(q,  x)
+  1) Push x to stack1 (assuming size of stacks is unlimited).
+Here time complexity will be O(1)
+
+deQueue(q)
+  1) If both stacks are empty then error.
+  2) If stack2 is empty
+       While stack1 is not empty, push everything from stack1 to stack2.
+  3) Pop the element from stack2 and return it.
+Here time complexity will be O(n)
+#
+
+class Queue{
+  stack<int> s1,s2;
+  int curr_size;
+  public:
+  
+  Queue(){
+      curr_size = 0;
+  }
+  
+  void enqueue(int x){
+      curr_size++;
+      s1.push(x);
+  }
+  
+  int dequeue(){
+    if(s1.empty() && s2.empty())
+        return -1;
+    if(s2.empty()){
+        while(!s1.empty()){
+            s2.push(s1.top());
+            s1.pop();
+        }
+    }
+    
+    int x = s2.top();
+    s2.pop();
+    curr_size--;
+    return x;
+  }
+};
+int main(){
+    Queue q1;
+    q1.enqueue(1);
+    q1.enqueue(2);
+    q1.enqueue(3);
+    cout<<q1.dequeue()<<endl;
+    cout<<q1.dequeue()<<endl;
+    cout<<q1.dequeue()<<endl;
+    return 0;
+}
+
+5. Check for balanced parentheses
+----USING THE STACKS -----
+------O(N), O(N) -------
+ bool isValid(string s) {
+        int n = s.size();
+        if(n&1==1)
+            return false;
+        stack<int> my_stack;
+        
+        for(auto c:s){
+            switch(c){
+            case '{':
+            case '(':
+            case '[':
+                my_stack.push(c);
+                break;
+            case '}':
+            if(my_stack.empty() || my_stack.top()!='{'){
+                return false;
+            }
+            my_stack.pop();
+            break;
+            case ')':
+            if(my_stack.empty() || my_stack.top()!='('){
+                return false;
+            }
+            my_stack.pop();
+            break;
+            case ']':
+            if(my_stack.empty() || my_stack.top()!='['){
+                return false;
+            }
+            my_stack.pop();
+            break;
+            
+        }
+    }
+        return my_stack.empty();
+    }
+
+
+6. NEXT GREATER ELEMENT
+Given an array, print the Next Greater Element (NGE) for every element. The Next greater Element for an element x is the first greater element on the right side of x in array. Elements for which no greater element exist, consider next greater element as -1.
+
+Examples:
+
+For any array, rightmost element always has next greater element as -1.
+For an array which is sorted in decreasing order, all elements have next greater element as -1.
+For the input array [4, 5, 2, 25}, the next greater elements for each element are as follows.
+Element       NGE
+   4      -->   5
+   5      -->   25
+   2      -->   25
+   25     -->   -1
+d) For the input array [13, 7, 6, 12}, the next greater elements for each element are as follows.
+
+  Element        NGE
+   13      -->    -1
+   7       -->     12
+   6       -->     12
+   12      -->     -1
+SOLUTION:
+---NAIVE APPROACH --- O(N^2), O(N) ---- FOR LOOP OVER FOR 
+---OPTIMIZED ----O(N), O(N) ------
+USING THE STACKS
+
+vector<int> greater(vector<int>& A){
+    vector<int> result(A.size());
+    stack<int> s;
+    
+    for(int i=A.size()-1;i>=0;i--){
+        // pop all the elements which are smaller than current element
+        if(!s.empty()){
+            while(!s.empty() && s.top() <= A[i])
+                s.pop();
+        }
+        
+        // if the stack is empty i.e., no element greater than the current element then store -1
+        // else store the greater element which is s.top()
+        if(s.empty()){
+            result[i] = -1;
+        }
+        else
+            result[i] = s.top();
+        // push the current element in the stack
+        s.push(A[i]);
+    }
+    return result;
+}
+
+7. BFS
+ SIMILIAR TO THE INORDER TRAVERSAL
+ MAKING USE OF THE QUEUE 
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Graph{
+  int m_v;                   // vertices
+  vector<vector<int>> m_adj; // edges in the form of adjacency list
+  public:
+  
+  Graph(int v):m_v(v), m_adj(v){  // constructor initailizing m_v and m_adj with the size v
+  }
+  
+  void addEdge(int u, int v){
+      m_adj[u].push_back(v);
+      //m_adj[v].push_back(u); for the undirected graph
+  }
+  
+  void BFS(int s){
+      queue<int> q;  // queue 
+      vector<bool> visited(m_v,false); // vector for visited values
+      q.push(s);  // pushing the starting value
+      visited[s] = true;  // making it as true in the visited vector
+      while(!q.empty()){   
+          int v = q.front();  
+          q.pop();
+          cout<<v<<endl;
+          for(int u: m_adj[v]){  // checking for the adjacent values of the v in the m_adj
+              if(!visited[u]){   // if not visited then storing it in the queue and making true in the visited vector
+                  q.push(u);
+                  visited[u] = true;
+              }
+          }
+      }
+  }
+};
+int main()
+{
+    Graph G(5);
+    G.addEdge(0,1);
+    G.addEdge(0,3);
+    G.addEdge(1,2);
+    G.addEdge(3,2);
+    G.addEdge(3,4);
+    G.BFS(0);
+    return 0;
+}

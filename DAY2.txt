@@ -37,7 +37,7 @@ Could you devise a constant space solution?
 
 SOLUTION: 
 -------O(M*N), O(M+N)-----------
-CREATING TWO SEPERATE VECTORS FOR STORING THE INDEXES INITAIALLY THEN WHENEVER WE ENCOUNTER WE WILL MAKE ALL THE CORRESPONDING ROWS AND COLUMNS AS ZEROES.
+CREATING TWO SEPERATE VECTORS FOR STORING THE INDEXES INITAILLY THEN WHENEVER WE ENCOUNTER WE WILL MAKE ALL THE CORRESPONDING ROWS AND COLUMNS AS ZEROES.
 
  void setZeroes(vector<vector<int>>& matrix) {
         int m = matrix.size();
@@ -224,7 +224,7 @@ SOLUTION:
         // checking for our point of interest i.e., the next greater value
         while(i>=0 && nums[i] >= nums[i+1])
             i--;
-        //if more number i.e., next permutation is there then will make use 
+        //if greater number i.e., next permutation is there then will make use 
         if(i>=0){
             int j = nums.size()-1;
             while(j>=0 && nums[j] <= nums[i]){
@@ -451,6 +451,35 @@ SOLUTION:
         return pro;
     }
 
+{iii} Best Time to Buy and Sell Stock with Cooldown
+Say you have an array for which the ith element is the price of a given stock on day i.
+
+Design an algorithm to find the maximum profit. You may complete as many transactions as you like (ie, buy one and sell one share of the stock multiple times) with the following restrictions:
+
+You may not engage in multiple transactions at the same time (ie, you must sell the stock before you buy again).
+After you sell your stock, you cannot buy stock on next day. (ie, cooldown 1 day)
+Example:
+
+Input: [1,2,3,0,2]
+Output: 3 
+Explanation: transactions = [buy, sell, cooldown, buy, sell]
+#
+---------------------------------------O(N), O(1)-----------------------------------------
+
+int maxProfit(vector<int>& prices) {
+        int n = prices.size();
+        if(n <= 1)
+            return 0;
+        int A = 0, B = -prices[0], C = 0;
+        for(int i=1;i<n;i++){
+            int temp = A;
+            A = max(A,C);
+            C = B + prices[i];
+            B = max(B, temp-prices[i]);
+        }
+        return max(A,C);
+    }
+
 6. TRANSPOSE OF A MATRIX
 Given a matrix A, return the transpose of A.
 
@@ -470,7 +499,7 @@ vector<vector<int>> transpose(vector<vector<int>>& A) {
         int r = A.size();
         int c = A[0].size();
         // new vector of b.row = a.col & b.col = a.row
-        vector<vector<int>> B(c, vector<int>(r,0));
+        vector<vector<int>> B(c, vector<int>(r,0)); // vector of vector of row size = c & col size = r --> initialized to zero
         
         for(int i=0;i<r;i++){
             for(int j=0;j<c;j++){

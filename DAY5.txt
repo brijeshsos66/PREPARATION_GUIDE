@@ -238,3 +238,45 @@ ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
         }
         return dummy->next;
     }
+
+7. FLATTEN A MULTILEVEL DOUBLY LINKED LIST
+LINK TO THE QUESTION: https://leetcode.com/explore/challenge/card/july-leetcoding-challenge/545/week-2-july-8th-july-14th/3386/
+
+SOLUTION:
+Iterate through the nodes
+If node has child save the next node to a variable; call recursive function call on child (Will return child as head)
+Set next of current node to child
+Remove child ptr from current node
+Iterate through the child node sequence to get last node
+Set next of last child sequence node to the variable we saved in step 2
+Set next of this node to the next we saved on step 2
+If that next was not NULL then set its previous to this last node
+Return head
+
+#
+
+class Solution {
+public:
+    Node* flatten(Node* head) {
+        if(!head)
+            return NULL;
+        Node* trav = head;
+        while(trav){
+            if(trav->child){
+                Node* next = trav->next;
+                Node* child = flatten(trav->child);
+                trav->child = NULL;
+                trav->next = child;
+                child->prev = trav;
+                Node* childlast = child;
+                while(childlast->next)
+                    childlast = childlast->next;
+                childlast->next = next;
+                if(next)
+                    next->prev = childlast;
+            }
+            trav = trav->next;
+        }
+        return head;
+    }
+};

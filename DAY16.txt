@@ -1,0 +1,319 @@
+DAY 16: STRING
+
+1. CHECK FOR ANAGRAM(VALID ANAGRAM)
+Given two strings s and t , write a function to determine if t is an anagram of s.
+
+Example 1:
+
+Input: s = "anagram", t = "nagaram"
+Output: true
+Example 2:
+
+Input: s = "rat", t = "car"
+Output: false
+Note:
+You may assume the string contains only lowercase alphabets.
+
+Follow up:
+What if the inputs contain unicode characters? How would you adapt your solution to such case?
+#
+-------O(NLOGN),O(1) -------
+ bool isAnagram(string s, string t) {
+        if(s.size()!=t.size())
+            return false;
+        sort(s.begin(),s.end());
+        sort(t.begin(),t.end());
+        if(s == t)
+            return true;
+        return false;
+    }
+
+2. GROUP ANAGRAM
+Given an array of strings, group anagrams together.
+
+Example:
+
+Input: ["eat", "tea", "tan", "ate", "nat", "bat"],
+Output:
+[
+  ["ate","eat","tea"],
+  ["nat","tan"],
+  ["bat"]
+]
+Note:
+
+All inputs will be in lowercase.
+The order of your output does not matter.
+#
+-----O(NLOGN),O(N)------
+vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        if(strs.size() == 0)
+            return {};
+        unordered_map<string,vector<string>> m;
+        for(auto s:strs){
+            string s2 = s;
+            sort(s2.begin(),s2.end());
+            m[s2].push_back(s);
+        }
+        
+        vector<vector<string>> res;
+        for(auto a:m){
+            res.push_back(a.second);
+        }
+        return res;
+    }
+
+3. Backspace String Compare
+Given two strings S and T, return if they are equal when both are typed into empty text editors. # means a backspace character.
+
+Note that after backspacing an empty text, the text will continue empty.
+
+Example 1:
+
+Input: S = "ab#c", T = "ad#c"
+Output: true
+Explanation: Both S and T become "ac".
+Example 2:
+
+Input: S = "ab##", T = "c#d#"
+Output: true
+Explanation: Both S and T become "".
+Example 3:
+
+Input: S = "a##c", T = "#a#c"
+Output: true
+Explanation: Both S and T become "c".
+Example 4:
+
+Input: S = "a#c", T = "b"
+Output: false
+Explanation: S becomes "c" while T becomes "b".
+Note:
+
+1 <= S.length <= 200
+1 <= T.length <= 200
+S and T only contain lowercase letters and '#' characters.
+Follow up:
+
+Can you solve it in O(N) time and O(1) space?
+SOLUTION:
+------O(N),O(1) --------
+bool backspaceCompare(string S, string T) {
+        int slen = S.length();
+        int tlen = T.length();
+        int s1 = 0, t1 = 0;
+        for(int i=0;i<slen;i++){
+            if(S[i] == '#'){
+                s1--;
+                s1 = max(0,s1);
+            }
+            else{
+            S[s1] = S[i];
+            s1++;
+            }
+        }
+        
+        for(int i=0;i<tlen;i++){
+            if(T[i] == '#'){
+                t1--;
+                t1 = max(0,t1);
+            }else{
+            T[t1] = T[i];
+            t1++;
+            }
+        }
+        
+        if(s1!=t1)
+            return false;
+        
+        for(int i=0;i<s1;i++){
+            if(S[i]!=T[i])
+                return false;
+        }
+        return true;
+    }
+
+4. COUNT AND SAY
+The count-and-say sequence is the sequence of integers with the first five terms as following:
+
+1.     1
+2.     11
+3.     21
+4.     1211
+5.     111221
+1 is read off as "one 1" or 11.
+11 is read off as "two 1s" or 21.
+21 is read off as "one 2, then one 1" or 1211.
+
+Given an integer n where 1 ≤ n ≤ 30, generate the nth term of the count-and-say sequence. You can do so recursively, in other words from the previous member read off the digits, counting the number of digits in groups of the same digit.
+
+Note: Each term of the sequence of integers will be represented as a string.
+
+ 
+
+Example 1:
+
+Input: 1
+Output: "1"
+Explanation: This is the base case.
+Example 2:
+
+Input: 4
+Output: "1211"
+Explanation: For n = 3 the term was "21" in which we have two groups "2" and "1", "2" can be read as "12" which means frequency = 1 and value = 2, the same way "1" is read as "11", so the answer is the concatenation of "12" and "11" which is "1211".
+
+SOLUTION:
+#
+
+string findnextterm(string s){
+        string result = "";
+        int count = 1;
+        for(int i=1;i<s.size();i++){
+            if(s[i] == s[i-1]){
+                count++;
+            }
+            else{
+                result+=to_string(count);
+                result.push_back(s[i-1]);
+                count = 1;
+            }
+        }
+        result+=to_string(count);
+        result.push_back(s.back());
+        return result;
+    }
+    string countAndSay(int n) {
+        string result = "1";
+        for(int i=1;i<n;i++){
+            result = findnextterm(result);
+        }
+        return result;
+    }
+
+5. Compare version numbers 
+Compare two version numbers version1 and version2.
+If version1 > version2 return 1; if version1 < version2 return -1;otherwise return 0.
+
+You may assume that the version strings are non-empty and contain only digits and the . character.
+
+The . character does not represent a decimal point and is used to separate number sequences.
+
+For instance, 2.5 is not "two and a half" or "half way to version three", it is the fifth second-level revision of the second first-level revision.
+
+You may assume the default revision number for each level of a version number to be 0. For example, version number 3.4 has a revision number of 3 and 4 for its first and second level revision number. Its third and fourth level revision number are both 0.
+
+ 
+
+Example 1:
+
+Input: version1 = "0.1", version2 = "1.1"
+Output: -1
+Example 2:
+
+Input: version1 = "1.0.1", version2 = "1"
+Output: 1
+Example 3:
+
+Input: version1 = "7.5.2.4", version2 = "7.5.3"
+Output: -1
+Example 4:
+
+Input: version1 = "1.01", version2 = "1.001"
+Output: 0
+Explanation: Ignoring leading zeroes, both “01” and “001" represent the same number “1”
+Example 5:
+
+Input: version1 = "1.0", version2 = "1.0.0"
+Output: 0
+Explanation: The first version number does not have a third level revision number, which means its third level revision number is default to "0"
+ 
+
+Note:
+
+Version strings are composed of numeric strings separated by dots . and this numeric strings may have leading zeroes.
+Version strings do not start or end with dots, and they will not be two consecutive dots.
+
+SOLUTION:
+#
+int compareVersion(string version1, string version2) {
+       int size1 = version1.size();
+        int size2 = version2.size();
+        int i=0, j=0;
+        
+       while(i<size1 || j<size2)
+       {
+           int num1 = 0; // FOR CALCULATING THE . POINT VALUE OF VERSION1
+           int num2 = 0; // FOR CALCULATING THE . POINT VALUE OF VERSION2
+           //CALULATE VERSION1 TILL THE NEXT . POINT
+           while(i<size1 && version1[i]!='.')              
+            {
+                num1 = num1*10 + version1[i]-'0';
+                i++;
+            }
+           // CALCULATE VERSION2 TILL THE NEXT .POINT
+            while(j<size2 && version2[j]!='.')
+            {
+                num2 = num2*10 + version2[j]-'0';
+                j++;
+            }
+            // COMPARE BOTH VERSION
+            if(num1 > num2)           
+                return 1;
+            else if(num1< num2)
+                return -1;
+           // IF EQUAL GO AND CHECK FOR NEXT POINT . VALUE
+            i++;
+            j++;
+            
+            
+       }
+       
+       return 0;
+    }
+
+6. KNUTH-MORRIS-PRATT ALGORITHM
+
+---IT IS A VERY ADVANCED AND HIGH LEVEL STRING MATCHING ALGORITHM --- 
+--- AND IT IS NOT FINAL YET, IT IS STILL UNDER CONSTRUCTION OR PROCESS---
+
+--VIDEO LINK TO UNDERSTAND THE CONCEPT :
+https://www.youtube.com/watch?v=V5-7GzOfADQ
+
+---O(M+N), O(M) -----
+ M IS THE LENGTH OF THE PATTERN AND N IS THE LENGTH OF THE STRING OR TEXT.
+
+-- NO PROGRAM IS NOT MANDATORY, IT IS TOUGH TO WRITE IT IN THE TIME SPAN --
+
+LINK FOR THE PROGRAM :
+https://www.geeksforgeeks.org/kmp-algorithm-for-pattern-searching/
+
+7. RUN LENGTH ENCODING
+Given an input string, write a function that returns the Run Length Encoded string for the input string.
+For example, if the input string is “wwwwaaadexxxxxx”, then the function should return “w4a3d1e1x6”.
+
+#
+---------------------O(N),O(1)---------------------------------------------------
+
+void printRLE(string str) 
+{ 
+    int n = str.length(); 
+    for (int i = 0; i < n; i++) { 
+  
+        // Count occurrences of current character 
+        int count = 1; 
+        while (i < n - 1 && str[i] == str[i + 1]) { 
+            count++; 
+            i++; 
+        } 
+  
+        // Print character and its count 
+        cout << str[i] << count; 
+    } 
+} 
+  
+int main() 
+{ 
+    string str = "wwwwaaadexxxxxxywww"; 
+    printRLE(str); 
+    return 0; 
+} 

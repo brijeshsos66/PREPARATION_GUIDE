@@ -1,0 +1,302 @@
+Day 20: (Binary Search Tree) 
+
+1.	Populate Next Right pointers of Tree 
+You are given a perfect binary tree where all leaves are on the same level, and every parent has two children. The binary tree has the following definition:
+
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+Populate each next pointer to point to its next right node. If there is no next right node, the next pointer should be set to NULL.
+
+Initially, all next pointers are set to NULL.
+EXAMPLE 1:
+Input: root = [1,2,3,4,5,6,7]
+Output: [1,#,2,3,#,4,5,6,7,#]
+Explanation: Given the above perfect binary tree (Figure A), your function should populate each next pointer to point to its next right node, just like in Figure B. 
+The serialized output is in level order as connected by the next pointers, with '#' signifying the end of each level.
+
+EXAMPLE 2: IF IT IS NOT A PERFECT BINARY TREE
+Input: root = [1,2,3,4,5,null,7]
+Output: [1,#,2,3,#,4,5,7,#]
+Explanation: Given the above binary tree (Figure A), your function should populate each next pointer to point to its next right node, just like in Figure B. 
+The serialized output is in level order as connected by the next pointers, with '#' signifying the end of each level.
+
+SOLUTION: -----O(N), O(N) ------
+USING RECURSION WITH QUEUE -----
+
+struct Node{
+ int val;
+ Node* left, *right, *next;
+ };
+
+Node* connect(Node* root){
+  if(!root)
+	return NULL;
+  queue<Node*> q;
+  q.push(root);
+  q.push(NULL); // for pointing it to the last element at each level
+
+  while(!q.empty()){
+  Node* temp = q.front();
+  q.pop();
+   if(temp == NULL){
+     if(q.empty())
+	break;
+     q.push(NULL);
+     continue;
+   }
+  temp->next = q.front();
+  if(temp->left)
+	q.push(temp->left);
+  if(temp->right)
+	q.push(temp->right);
+ }
+return root;
+}
+
+2.	Search given Key in BST ( SEARCH IN A BINARY SEARCH TREE)
+Given the root node of a binary search tree (BST) and a value. You need to find the node in the BST that the node's value equals the given value. Return the subtree rooted with that node. If such node doesn't exist, you should return NULL.
+
+For example, 
+
+Given the tree:
+        4
+       / \
+      2   7
+     / \
+    1   3
+
+And the value to search: 2
+You should return this subtree:
+
+      2     
+     / \   
+    1   3
+In the example above, if we want to search the value 5, since there is no node with value 5, we should return NULL.
+
+Note that an empty tree is represented by NULL, therefore you would see the expected output (serialized tree format) as [], not null.
+
+SOLUTION:
+#
+TreeNode* searchBST(TreeNode* root, int val) {
+        /*
+        ------ RECURSIVE ---O(N),O(N)-----
+        if(root == NULL)
+            return NULL;
+        if(root->val == val)
+            return root;
+        if(root->val > val)
+            return searchBST(root->left,val);
+        return searchBST(root->right,val);    
+        */
+        // ---- ITERATIVE ----- O(N), O(1)----
+        TreeNode* curr = root;
+        while(curr){
+            if(curr->val == val)
+                return curr;
+            if(curr->val > val)
+                curr = curr->left;
+            else
+                curr = curr->right;
+        }
+        return curr;
+    }
+
+3.	Construct BST from given keys.( CONVERT SORTED ARRAY TO BINARY SEARCH TREE)
+Given an array where elements are sorted in ascending order, convert it to a height balanced BST.
+
+For this problem, a height-balanced binary tree is defined as a binary tree in which the depth of the two subtrees of every node never differ by more than 1.
+
+Example:
+
+Given the sorted array: [-10,-3,0,5,9],
+
+One possible answer is: [0,-3,9,-10,null,5], which represents the following height balanced BST:
+
+      0
+     / \
+   -3   9
+   /   /
+ -10  5
+#
+SOLUTION:
+
+TreeNode* ConstructTreeFromScratch(vector<int>& nums,int left, int right){
+        if(left > right)
+            return NULL;
+        int mid = left + (right-left)/2;
+        TreeNode* newNode = new TreeNode(nums[mid]);
+        newNode->left = ConstructTreeFromScratch(nums,left,mid-1);
+        newNode->right = ConstructTreeFromScratch(nums,mid+1,right);
+        return newNode;
+    }
+    TreeNode* sortedArrayToBST(vector<int>& nums) {
+        if(nums.size() == 0)
+            return NULL;
+        return ConstructTreeFromScratch(nums,0,nums.size()-1);
+    }
+
+4. CHECK IF A BINARY TREE IS BST OR NOT
+# 
+SOLUTION:
+(I) MAKE USE OF INORDER TRAVERSAL AND STORE IT IN AN ARRAY AND THEN CHECK 
+-----O(N), O(N) -------------------------------------------------------
+(II) INORDER TRAVERSAL WITHOUT USING ARRAY MAKE USE OF PREV VARIABLE TO STORE AND THEN COMPARE AGAINST THE ROOT CURRENT VALUE
+-----O(N), O(1) ---------------------------------------------------------
+#
+bool inorder(TreeNode* root, long& prev){
+ if(!root)
+	return true;
+ if(!inorder(root->left,prev))
+	return false;
+ if(root->val <= prev)
+	return false;
+ prev = root->data;
+ 
+ if(!inorder(root->right,prev))
+	return false;
+
+return true;
+}
+
+bool isValidBST(TreeNode* root){
+  if(root == NULL)
+	return true;
+  long prev = LONG_MIN;
+return inorder(root,prev);
+ }
+
+  
+5.	Find LCA of two nodes in BST 
+Given a binary search tree (BST), find the lowest common ancestor (LCA) of two given nodes in the BST.
+According to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between two nodes p and q as the lowest node in T that has both p and q as descendants (where we allow a node to be a descendant of itself).”
+Given binary search tree:  root = [6,2,8,0,4,7,9,null,null,3,5]
+Example 1:
+
+Input: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
+Output: 6
+Explanation: The LCA of nodes 2 and 8 is 6.
+Example 2:
+
+Input: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4
+Output: 2
+Explanation: The LCA of nodes 2 and 4 is 2, since a node can be a descendant of itself according to the LCA definition.
+Note:
+
+All of the nodes' values will be unique.
+p and q are different and both values will exist in the BST.
+#
+SOLUTION:
+
+//PREORDER TRAVERSAL
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        //base case
+        if(root == NULL)
+            return NULL;
+        if(root->val == p->val || root->val == q->val)
+            return root;
+        TreeNode* left = lowestCommonAncestor(root->left,p,q);
+        TreeNode* right = lowestCommonAncestor(root->right,p,q);
+        
+        //if left and right are there, that means we find out the lca
+        // else if anone of the left or right is found --> return that
+        if(left!=NULL && right!=NULL)
+            return root;
+        else
+            return (left?left:right);
+    }
+
+6.	Find the inorder predecessor/successor of a given Key in BST. 
+ Examples:
+
+Input:          50
+               /  \
+              /    \
+            30     70
+           / \     / \
+          /   \   /   \
+         20   40 60   80
+            key = 65
+Output: Predecessor : 60
+        Successor : 70
+
+Input:          50
+               /  \
+              /    \
+            30     70
+           / \     / \
+          /   \   /   \
+         20   40 60   80
+            key = 100
+Output: predecessor : 80
+        successor : -1
+Explanation: As no node in BST has key value greater 
+than 100 so -1 is printed for successor.
+#
+SOLUTION:
+
+Input: root node, key
+output: predecessor node, successor node
+
+1. If root is NULL
+      then return
+2. if key is found then
+    a. If its left subtree is not null
+        Then predecessor will be the right most 
+        child of left subtree or left child itself.
+    b. If its right subtree is not null
+        The successor will be the left most child 
+        of right subtree or right child itself.
+    return
+3. If key is smaller then root node
+        set the successor as root
+        search recursively into left subtree
+    else
+        set the predecessor as root
+        search recursively into right subtree
+
+-----solution----------------
+
+ void InorderPreSuc(Node* root, Node*& pre, Node*& suc, int key){
+  
+  //base case
+  if(root == NULL)
+	return;
+  
+  //if key is found in the root
+  if(root->key == key){
+   
+  // the maximum in the left subtree is the predecessor
+  if(root->left!=NULL){
+    Node* temp = root->left;
+    while(temp->right)
+	temp = temp->right;
+   pre = temp;
+  }
+
+  // the minimum value in the right subtree is the successor
+  if(root->right!=NULL){
+   Node* temp = root->right;
+   while(temp->left)
+	temp = temp->left;
+   suc = temp;
+  }
+return;
+ }
+
+// the key is smaller than root's key, go to the left subtree
+ if(root->key > key)
+ {
+  suc = root;
+  InorderPreSuc(root->left,pre,suc,key)
+ }
+
+// the key is greater then root's key, go the the right subtree
+ else{
+  pre = root;
+ InorderPreSuc(root->right,pre,suc,key);
+ }
+}

@@ -1,0 +1,641 @@
+Day9: (Backtracking) 
+
+1.	N queens Problem 
+The N Queen is the problem of placing N chess queens on an N×N chessboard 
+so that no two queens attack each other.
+
+SOLUTION:
+----(N^(N*N)),O(N*N) ------
+#include <bits/stdc++.h>
+using namespace std;
+bool isSafe(int board[][10],int i,int j, int n){
+    // CHECKING FOR COLUMN
+    for(int row =0;row<i;row++){
+        if(board[row][j] == 1){
+            return false;
+        }
+    }
+    // CHECKING FOR LEFT DIAGONAL
+    int x=i, y=j;
+    while(x>=0 && y>=0){
+        if(board[x][y] == 1){
+            return false;
+        }
+        x--; 
+        y--;
+    }
+    // CHECKING FOR RIGHT DIAGONAL
+    x = i, y = j;
+    while(x>=0 && y<n){
+        if(board[x][y] == 1){
+            return false;
+        }
+        x--;
+        y++;
+    }
+    // POSITION OF THE I,J IS SAFE
+    return true;
+}
+
+bool solveNQueen(int board[][10], int i, int n){
+// BASE CASE 
+if(i==n){
+    // you have successfully placed queens in n rows (0...n-1)
+    // print the board
+    for(int i =0;i<n;i++){
+        for(int j=0;j<n;j++){
+            if(board[i][j] == 1){
+                cout<<"Q ";
+            } else {
+                cout<<"_ ";
+            }
+        }
+        cout<<endl;
+    }
+    cout<<endl<<endl;
+    return true; // TO PRINT ALL THE SOLUTION --> MAKE IT FALSE
+}
+    // RECURSIVE CASE
+    // TRY TO PLACE THE QUEEN IN THE CURRENT ROW AND CALL ON THE REMAINING PART
+    // WHICH WILL BE SOLVED BY RECURSION
+    
+    for(int j=0;j<n;j++){
+        //check for i,j in isSafe
+        if(isSafe(board,i,j,n)){
+            //place the QUEEN
+            board[i][j] = 1;
+            
+            bool nextqueen = solveNQueen(board,i+1,n);
+            if(nextqueen){
+                return true;
+            }
+            // MEANS I,J IS NOT THE RIGHT POSITION. ASSUMPTION IS WRONG
+            // BACKTRACK
+            
+            board[i][j] = 0;
+        }
+    }
+    // YOU HAVE TRIED FOR ALL THE POSITIONS BUT COULDN'T PLACE THE QUEEN 
+    return false;
+}
+int main()
+{
+    int n;
+    cin>>n;
+    int board[10][10] = {0};
+    
+    solveNQueen(board,0,n);
+    
+    return 0;
+}
+
+2. SODOKU SOLVER
+
+Given a partially filled 9×9 2D array ‘grid[9][9]’, the goal is to assign digits 
+(from 1 to 9) to the empty cells so that every row, column, and subgrid of size 3×3 
+contains exactly one instance of the digits from 1 to 9.
+
+Example:
+
+Input:
+grid = { {3, 0, 6, 5, 0, 8, 4, 0, 0}, 
+         {5, 2, 0, 0, 0, 0, 0, 0, 0}, 
+         {0, 8, 7, 0, 0, 0, 0, 3, 1}, 
+         {0, 0, 3, 0, 1, 0, 0, 8, 0}, 
+         {9, 0, 0, 8, 6, 3, 0, 0, 5}, 
+         {0, 5, 0, 0, 9, 0, 6, 0, 0}, 
+         {1, 3, 0, 0, 0, 0, 2, 5, 0}, 
+         {0, 0, 0, 0, 0, 0, 0, 7, 4}, 
+         {0, 0, 5, 2, 0, 6, 3, 0, 0} }
+Output:
+          3 1 6 5 7 8 4 9 2
+          5 2 9 1 3 4 7 6 8
+          4 8 7 6 2 9 5 3 1
+          2 6 3 4 1 5 9 8 7
+          9 7 4 8 6 3 1 2 5
+          8 5 1 7 9 2 6 4 3
+          1 3 8 9 4 7 2 5 6
+          6 9 2 3 5 1 8 7 4
+          7 4 5 2 8 6 3 1 9
+Explanation: Each row, column and 3*3 box of 
+the output matrix contains unique numbers.
+
+Input:    
+grid = { { 3, 1, 6, 5, 7, 8, 4, 9, 2 },
+         { 5, 2, 9, 1, 3, 4, 7, 6, 8 },
+         { 4, 8, 7, 6, 2, 9, 5, 3, 1 },
+         { 2, 6, 3, 0, 1, 5, 9, 8, 7 },
+         { 9, 7, 4, 8, 6, 0, 1, 2, 5 },
+         { 8, 5, 1, 7, 9, 2, 6, 4, 3 },
+         { 1, 3, 8, 0, 4, 7, 2, 0, 6 },
+         { 6, 9, 2, 3, 5, 1, 8, 7, 4 },
+         { 7, 4, 5, 0, 8, 6, 3, 1, 0 } };
+Output:
+           3 1 6 5 7 8 4 9 2 
+           5 2 9 1 3 4 7 6 8 
+           4 8 7 6 2 9 5 3 1 
+           2 6 3 4 1 5 9 8 7 
+           9 7 4 8 6 3 1 2 5 
+           8 5 1 7 9 2 6 4 3 
+           1 3 8 9 4 7 2 5 6 
+           6 9 2 3 5 1 8 7 4 
+           7 4 5 2 8 6 3 1 9 
+Explanation: Each row, column and 3*3 box of 
+the output matrix contains unique numbers.
+
+SOLUTION:
+------ O(9^(N*N)), O(N*N) ------
+
+#include <bits/stdc++.h>
+using namespace std;
+
+bool isrowSafe(int board[][9], int row, int num){
+    for(int i=0;i<9;i++){
+        if(board[row][i] == num){
+            return false;
+        }
+    }
+    return true;
+}
+
+bool iscolSafe(int board[][9], int col, int num){
+    for(int i=0;i<9;i++){
+        if(board[i][col] == num){
+            return false;
+        }
+    }
+    return true;
+}
+
+bool isBoxSafe(int board[][9], int row, int col, int num){
+    int rowStart = row - row%3;
+    int colStart = col - col%3;
+    
+    for(int i=rowStart; i<rowStart+3;i++){
+        for(int j=colStart; j<colStart+3; j++){
+            if(board[i][j] == num){
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool isSafe(int board[][9], int row, int col, int num){
+    // row safe
+    if(!isrowSafe(board,row,num)){
+        return false;
+    }
+    // col safe
+    if(!iscolSafe(board,col,num)){
+        return false;
+    }
+    // is box safe
+    if(!isBoxSafe(board,row,col,num)){
+        return false;
+    }
+    
+    // everything safe
+    return true;
+}
+
+bool sudokuSolver(int board[][9]){
+    int row=-1, col=-1;
+    bool isEmpty = false;
+    
+    for(int i=0;i<9;i++){
+        for(int j=0;j<9;j++){
+            if(board[i][j] == 0){
+                isEmpty = true;
+                row = i;
+                col = j;
+                break;
+            }
+        }
+        if(isEmpty){ // TO BREAK FROM THE iTh loop
+            break;
+        }
+    }
+    // no empty cell, we have solved the sudoku
+    if(!isEmpty){
+        return true;
+    }
+    
+    for(int num = 1; num<=9; num++){
+        if(isSafe(board,row,col,num)){
+            board[row][col] = num;
+            
+            if(sudokuSolver(board)){
+                return true;
+            }
+            //BACKTRACK
+            board[row][col] = 0;
+        }
+    }
+    return false;
+}
+
+int main()
+{
+    int board[9][9] = {{3,0,6,5,0,8,4,0,0},{5,2,0,0,0,0,0,0,0},{0,8,7,0,0,0,0,3,1},{0,0,3,0,1,0,0,8,0},
+                        {9,0,0,8,6,3,0,0,5},{0,5,0,0,9,0,6,0,0},{1,3,0,0,0,0,2,5,0},{0,0,0,0,0,0,0,7,4},
+                        {0,0,5,2,0,6,3,0,0}};
+    
+    if(sudokuSolver(board) == true){
+        for(int i=0;i<9;i++){
+            for(int j=0;j<9;j++){
+                cout<<board[i][j]<<" ";
+            }
+            cout<<endl;
+        }
+    }
+    else{ 
+        cout<<"No Solution exists!!!";
+    }
+
+    return 0;
+}
+
+3.	M coloring Problem 
+Given an undirected graph and a number m, determine if the graph can be coloured with at most m colours such that no two adjacent vertices of the graph are colored with the same color. Here coloring of a graph means the assignment of colors to all vertices.
+Input-Output format:
+Input:
+
+A 2D array graph[V][V] where V is the number of vertices in graph and graph[V][V] is adjacency matrix representation of the graph. A value graph[i][j] is 1 if there is a direct edge from i to j, otherwise graph[i][j] is 0.
+An integer m which is the maximum number of colors that can be used.
+Output:
+An array color[V] that should have numbers from 1 to m. color[i] should represent the color assigned to the ith vertex. The code should also return false if the graph cannot be colored with m colors.
+
+Example:
+
+Input:  
+graph = {0, 1, 1, 1},
+        {1, 0, 1, 0},
+        {1, 1, 0, 1},
+        {1, 0, 1, 0}
+Output: 
+Solution Exists: 
+Following are the assigned colors
+ 1  2  3  2
+Explanation: By coloring the vertices 
+with following colors, adjacent 
+vertices does not have same colors
+
+Input: 
+graph = {1, 1, 1, 1},
+        {1, 1, 1, 1},
+        {1, 1, 1, 1},
+        {1, 1, 1, 1}
+Output: Solution does not exist.
+Explanation: No solution exits.
+
+SOLUTION:
+----O(2^(N*N)), O(N*N) -------
+
+#include <bits/stdc++.h>
+using namespace std;
+#define V 4
+
+bool isSafe(int v, bool graph[V][V], int color[], int c){
+    for(int i=0;i<V;i++)
+        if(graph[v][i] && c == color[i])
+            return false;
+    return true;
+}
+
+bool graphColoringUtil(bool graph[V][V], int m, int color[], int v){
+    // BASE CASE: IF ALL VERTICES ASSIGNED A VALUE
+    if(v == V)
+        return true;
+    
+    for(int c=1; c<=m; c++){
+        if(isSafe(v,graph,color,c)){
+            color[v] = c;
+            
+            if(graphColoringUtil(graph,m,color,v+1) == true)
+                return true;
+            
+            //BACKTRACKING
+            color[v] = 0;
+        }
+    }
+    return false;
+}
+
+bool graphColoring(bool graph[V][V], int m){
+    int color[V];
+    
+    for(int i=0;i<V;i++)
+        color[i] = 0;
+    if(graphColoringUtil(graph,m,color,0) == false){
+        cout<<"SOLUTION DOESN'T EXISTS";
+        return false;
+    }
+    // SOLUTION EXISTS: PRINT THE SOLUTION
+    
+    cout<<"SOLUTION EXISTS: FOLLOWING ARE THE ASSIGNED COLOURS \n";
+    
+    for(int i=0;i<V;i++)
+        cout<<color[i]<<" ";
+    cout<<endl;
+    
+    return true;
+    
+}
+
+int main()
+{
+    
+bool graph[V][V] = {{0,1,1,1},{1,0,1,0},{1,1,0,1},{1,0,1,0}};
+
+int m=3;
+graphColoring(graph,m);
+return 0;
+}
+
+4. RAT IN A MAZE
+A Maze is given as N*N binary matrix of blocks where source block is the upper left most block i.e., maze[0][0] and destination block is lower rightmost 
+block i.e., maze[N-1][N-1]. A rat starts from source and has to reach the destination. The rat can move only in two directions: forward and down.
+In the maze matrix, 0 means the block is a dead end and 1 means the block can be used in the path from source to destination. Note that this is a simple version
+of the typical Maze problem. For example, a more complex version can be that the rat can move in 4 directions and a more complex version can be with a limited number of moves
+EXAMPLE:
+{1, 0, 0, 0}
+{1, 1, 0, 1}
+{0, 1, 0, 0}
+{1, 1, 1, 1}
+
+Following is the solution matrix (output of program) for the above input matrx.
+
+{1, 0, 0, 0}
+{1, 1, 0, 0}
+{0, 1, 0, 0}
+{0, 1, 1, 1}
+All enteries in solution path are marked as 1.
+
+SOLUTION:
+----O(2^(N*N)), O(N*N) -----
+
+#include <bits/stdc++.h>
+using namespace std;
+
+#define N 4
+
+bool isSafe(int maze[N][N], int x,int y){
+    if(x>=0 && x<N && y>=0 && y<N && maze[x][y] == 1)
+        return true;
+    return false;
+}
+
+bool solveMazeUtil(int maze[N][N], int x, int y, int sol[N][N]){
+    //x,y is goal--> true
+    if(x == N-1 && y == N-1 && maze[x][y] == 1){
+        sol[x][y] = 1;
+        return true;
+    }
+    
+    if(isSafe(maze,x,y)){
+        sol[x][y] = 1;
+    
+    // bottom
+    if(solveMazeUtil(maze,x+1,y,sol))
+        return true;
+        
+    // right
+    if(solveMazeUtil(maze,x,y+1,sol))
+        return true;
+        
+    //BACKTRACK
+    
+    sol[x][y] = 0;
+    return false;
+}
+return false;
+}
+
+bool solveMaze(int maze[N][N]){
+    int sol[N][N] = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+    
+    if(!solveMazeUtil(maze,0,0,sol)){
+        cout<<"No solution exists";
+        return false;
+    }
+    
+    //SOLUTION EXISTS PRINTING IT.
+    for(int i=0;i<N;i++){
+        for(int j=0;j<N;j++){
+            cout<<sol[i][j]<<" ";
+        } cout<<endl;
+    }
+    return true;
+}
+
+
+int main()
+{
+    int maze[N][N] = {{1,0,0,0},{1,1,0,1},{0,1,0,0},{1,1,1,1}};
+    solveMaze(maze);
+    return 0;
+}
+
+(II) Count number of ways to reach destination in a Maze
+Given a maze with obstacles, count number of paths to reach rightmost-bottommost cell from topmost-leftmost cell. A cell in given maze has value -1 if it is a blockage or dead end, else 0.
+
+From a given cell, we are allowed to move to cells (i+1, j) and (i, j+1) only.
+
+Examples:
+
+Input: maze[R][C] =  {{0,  0, 0, 0},
+                      {0, -1, 0, 0},
+                      {-1, 0, 0, 0},
+                      {0,  0, 0, 0}};
+Output: 4
+
+The idea is to modify the given grid[][] so that grid[i][j] contains count of paths to reach (i, j) from (0, 0) if (i, j) is not a blockage, else grid[i][j] remains -1.
+
+We can recursively compute grid[i][j] using below 
+formula and finally return grid[R-1][C-1]
+
+  // If current cell is a blockage
+  if (maze[i][j] == -1)
+      maze[i][j] = -1; //  Do not change
+
+  // If we can reach maze[i][j] from maze[i-1][j]
+  // then increment count.
+  else if (maze[i-1][j] > 0)
+      maze[i][j] = (maze[i][j] + maze[i-1][j]);
+
+  // If we can reach maze[i][j] from maze[i][j-1]
+  // then increment count.
+  else if (maze[i][j-1] > 0)
+      maze[i][j] = (maze[i][j] + maze[i][j-1]);
+
+SOLUTION:
+-----O(R*C), O(1) ------
+#define R 4 
+#define C 4 
+  
+// Returns count of possible paths in a maze[R][C] 
+// from (0,0) to (R-1,C-1) 
+int countPaths(int maze[][C]) 
+{ 
+    // If the initial cell is blocked, there is no 
+    // way of moving anywhere 
+    if (maze[0][0]==-1) 
+        return 0; 
+  
+    // Initializing the leftmost column 
+    for (int i=0; i<R; i++) 
+    { 
+        if (maze[i][0] == 0) 
+            maze[i][0] = 1; 
+  
+        // If we encounter a blocked cell in leftmost 
+        // row, there is no way of visiting any cell 
+        // directly below it. 
+        else
+            break; 
+    } 
+  
+    // Similarly initialize the topmost row 
+    for (int i=1; i<C; i++) 
+    { 
+        if (maze[0][i] == 0) 
+            maze[0][i] = 1; 
+  
+        // If we encounter a blocked cell in bottommost 
+        // row, there is no way of visiting any cell 
+        // directly below it. 
+        else
+            break; 
+    } 
+  
+    // The only difference is that if a cell is -1, 
+    // simply ignore it else recursively compute 
+    // count value maze[i][j] 
+    for (int i=1; i<R; i++) 
+    { 
+        for (int j=1; j<C; j++) 
+        { 
+            // If blockage is found, ignore this cell  
+            if (maze[i][j] == -1) 
+                continue; 
+  
+            // If we can reach maze[i][j] from maze[i-1][j] 
+            // then increment count. 
+            if (maze[i-1][j] > 0) 
+                maze[i][j] = (maze[i][j] + maze[i-1][j]); 
+  
+            // If we can reach maze[i][j] from maze[i][j-1] 
+            // then increment count. 
+            if (maze[i][j-1] > 0) 
+                maze[i][j] = (maze[i][j] + maze[i][j-1]); 
+        } 
+    } 
+  
+    // If the final cell is blocked, output 0, otherwise 
+    // the answer 
+    return (maze[R-1][C-1] > 0)? maze[R-1][C-1] : 0; 
+} 
+  
+// Driver code 
+int main() 
+{ 
+    int maze[R][C] =  {{0,  0, 0, 0}, 
+                       {0, -1, 0, 0}, 
+                       {-1, 0, 0, 0}, 
+                       {0,  0, 0, 0}}; 
+    cout << countPaths(maze); 
+    return 0; 
+} 
+
+5.	Print all Permutations of a string/array 
+A permutation, also called an “arrangement number” or “order,” is a rearrangement of the elements of an ordered list S into a one-to-one correspondence with S itself. A string of length n has n! permutation.
+Source: Mathword(http://mathworld.wolfram.com/Permutation.html)
+
+Below are the permutations of string ABC.
+ABC ACB BAC BCA CBA CAB
+
+SOLUTION:
+----O(N*N!), O(N!) -----
+
+#include <bits/stdc++.h>
+using namespace std;
+
+void permute(string a, int l, int r){
+    //BASE case
+    if(l == r)
+        cout<<a<<endl;
+    else{
+        for(int i=l;i<=r;i++){
+            //SWAP
+            swap(a[l],a[i]);
+            
+            //RECURSION
+            permute(a,l+1,r);
+            
+            //BACKTRACKING
+            swap(a[l],a[i]);
+        }
+    }
+}
+int main()
+{
+    string s="ABC";
+    int n = s.size();
+    permute(s,0,n-1);
+    return 0;
+}
+
+6.	Word Break (print all ways)  
+Given a valid sentence without any spaces between the words and a dictionary of valid English words, find all possible ways to break the sentence in individual dictionary words.
+
+Example
+
+Consider the following dictionary 
+{ i, like, sam, sung, samsung, mobile, ice, 
+  cream, icecream, man, go, mango}
+
+Input: "ilikesamsungmobile"
+Output: i like sam sung mobile
+        i like samsung mobile
+
+Input: "ilikeicecreamandmango"
+Output: i like ice cream and man go
+        i like ice cream and mango
+        i like icecream and man go
+        i like icecream and mango
+
+SOLUTION:
+
+#include <bits/stdc++.h>
+using namespace std;
+
+unordered_set<string> s;
+
+void go(string str, int len, string res){
+    // length will always be 1 or greater till length length
+    for(int i=1;i<=len;i++){
+        string pre = str.substr(0,i);
+        if(s.find(pre)!=s.end()){
+            if(i == len){
+            res+=pre;
+            cout<<res<<endl;
+        }
+        go(str.substr(i,len-i), len-i, res+pre+" ");
+    }
+  }
+}
+int main()
+{
+    s.insert("i");
+    s.insert("love");
+    s.insert("sam");
+    s.insert("sung");
+    s.insert("samsung");
+    
+    string str;
+    cin>>str;
+    
+    go(str,str.size(),"");
+    return 0;
+} 

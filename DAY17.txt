@@ -1,0 +1,305 @@
+Day17: (Binary Tree) 
+
+1.	Inorder Traversal (with recursion and without recursion) 
+(I) WITH RECURSION   -----O(N), O(N) ------- SPACE MIGHT BE O(H) AVG----
+
+struct Node{
+ int data;
+ Node* left;
+ Node* right;
+ };
+
+ void Inorder(Node* root){  // LDR
+ // base case
+ if(root == NULL)
+	return;
+ Inorder(root->left);
+ cout<<root->data<<" ";
+ Inorder(root->right);
+ }
+
+(II) WITHOUT RECURSION  ----O(N), O(N) -----
+void inOrder(struct Node *root) 
+{ 
+    stack<Node*> s; 
+    Node *curr = root; 
+  
+    while (curr != NULL || s.empty() == false) 
+    { 
+        /* Reach the left most Node of the 
+           curr Node */
+        while (curr !=  NULL) 
+        { 
+            /* place pointer to a tree node on 
+               the stack before traversing 
+              the node's left subtree */
+            s.push(curr); 
+            curr = curr->left; 
+        } 
+  
+        /* Current must be NULL at this point */
+        curr = s.top(); 
+        s.pop(); 
+  
+        cout << curr->data << " "; 
+  
+        /* we have visited the node and its 
+           left subtree.  Now, it's right 
+           subtree's turn */
+        curr = curr->right; 
+  
+    } /* end of while */
+} 
+
+ 
+2.	Preorder Traversal (with recursion and without recursion) 
+(I) WITH RECURSION  ------O(N), O(N) -----
+
+ void Preorder(Node* root){
+ if(root == NULL)
+	return;
+ cout<<root->data<<" ";
+ Preorder(root->left);
+ Preorder(root->right);
+ }
+
+(II) WITHOUT RECURSION 
+-----O(N), O(N) -------
+
+ void IterativePreorder(Node* root){
+ //base case
+ if(root == NULL) 
+	return;
+ 
+ //Create an empty stack and push root to it
+ stack<Node*> s;
+ s.push(root);
+
+ /* Pop all items one by one. Do following for every popped item 
+       a) print it 
+       b) push its right child   --- BECAUSE IN STACK ELEMENTS WILL BE INSERTED AT THE TOP ----
+       c) push its left child 
+    Note that right child is pushed first so that left is processed first */
+
+ while(!s.empty()){
+     Node* temp = s.top();
+     cout<<temp->data<<" ";
+     s.pop();
+ 
+    if(temp->right)
+	s.push(temp->right);
+
+    if(temp->left)
+ 	s.push(temp->left);
+  }
+
+3. Postorder Traversal (with recursion and without recursion)
+(I) WITH RECURSION ----O(N) , O(N) -----
+ void Postorder(Node* root){
+ if(root == NULL)
+	return;
+ Postorder(root->left);
+ Postorder(root->right);
+ cout<<root->data<<" ";
+ }
+
+(II) WITHOUT RECURSION ----O(N), O(N) ----
+void postOrderIterative(Node* root) 
+{ 
+    if (root == NULL) 
+        return; 
+  
+    // Create two stacks 
+    stack<Node *> s1, s2; 
+  
+    // push root to first stack 
+    s1.push(root); 
+    Node* node; 
+  
+    // Run while first stack is not empty 
+    while (!s1.empty()) { 
+        // Pop an item from s1 and push it to s2 
+        node = s1.top(); 
+        s1.pop(); 
+        s2.push(node); 
+  
+        // Push left and right children 
+        // of removed item to s1 
+        if (node->left) 
+            s1.push(node->left); 
+        if (node->right) 
+            s1.push(node->right); 
+    } 
+  
+    // Print all elements of second stack 
+    while (!s2.empty()) { 
+        node = s2.top(); 
+        s2.pop(); 
+        cout << node->data << " "; 
+    } 
+} 
+
+4.	LeftView Of Binary Tree
+Input : 
+                 1
+               /   \
+              2     3
+             / \     \
+            4   5     6             
+Output : 1 2 4
+
+Input :
+        1
+      /   \
+    2       3
+      \   
+        4  
+          \
+            5
+             \
+               6
+Output :1 2 4 5 6
+
+SOLUTION:
+--- 1 APPROACH WOULD BE TO USE THE LEVEL ORDER TRAVERSAL --- BUT IT WOULD BE LENGTHY-- O(N),O(N) ----
+----2 APPROACH WOULD BE TO USE THE RECURSION --- EASY ---O(N),O(N) ----
+#
+void leftviewOperation(bst* root, int level, int& maxlevel){
+    //base case
+    if(root == NULL)
+        return;
+    // print only if maxlevel < current level 
+    //and then assign the maxlevel = level
+    if(maxlevel < level){
+        cout<<root->data<<" ";
+        maxlevel = level;
+    }
+    // recursion for the left and right subtrees    
+    leftviewOperation(root->left,level+1,maxlevel);
+    leftviewOperation(root->right,level+1,maxlevel);
+}
+
+void leftview(bst* root){
+    int maxlevel = 0;
+    leftviewOperation(root,1,maxlevel);
+}
+
+5. RIGHT VIEW OF THE BINARY TREE
+Right view of following tree is 1 3 7 8
+
+          1
+       /     \
+     2        3
+   /   \     /  \
+  4     5   6    7
+                  \
+                   8
+SOLUTION:
+--- 1 APPROACH WOULD BE TO USE THE LEVEL ORDER TRAVERSAL --- BUT IT WOULD BE LENGTHY-- O(N),O(N) ----
+----2 APPROACH WOULD BE TO USE THE RECURSION --- EASY ---O(N),O(N) ---- ONLY ONE CHANGE FIRST RIGHT TRAVERSAL THEN LEFT.
+#
+void rightviewOperation(bst* root, int level, int& maxlevel){
+    //base case
+    if(root == NULL)
+        return;
+    //print only if the maxlevel < current level
+    // and then assign the maxlevel = level
+    if(maxlevel < level){
+        cout<<root->data<<" ";
+        maxlevel = level;
+    }
+    //recursion for the right and left subtrees
+    rightviewOperation(root->right,level+1,maxlevel);  // UPDATION
+    rightviewOperation(root->left,level+1,maxlevel);   // UPDATION
+}
+
+void rightview(bst* root){
+    int maxlevel = 0;
+    rightviewOperation(root,1,maxlevel);
+}
+
+6. TOP VIEW OF THE BINARY TREE
+     1
+    /     \
+   2       3
+  /  \    / \
+ 4    5  6   7
+Top view of the above binary tree is
+4 2 1 3 7
+
+        1
+      /   \
+    2       3
+      \   
+        4  
+          \
+            5
+             \
+               6
+Top view of the above binary tree is
+2 1 3 6
+
+SOLUTION: 
+----USING THE HASH MAP ---O(NLOGN), O(N) ------
+
+void topviewOperation(bst* root, int dist, int level, map<int,pair<int,int>>& m){
+  //base case
+  if(root == NULL)
+    return;
+  //searching in map if not found then store the node's data and node's level
+  // if found m[dist] then, check the current lvl (level < m[dist].second)
+  if(m.find(dist) == m.end() || level < m[dist].second){   // above level(less value it will be) encountering for the second condition to be true
+      m[dist] = {root->data,level};
+  }
+  //recursion for the rest node -> left = -1 and right = +1
+  topviewOperation(root->left,dist-1,level+1,m);
+  topviewOperation(root->right,dist+1,level+1,m);
+}
+void topview(bst* root){
+    // map of distance and pair(node's data , node's level)
+    map<int,pair<int,int>> m;
+    
+    topviewOperation(root,0,0,m);
+    
+    for(auto i:m)
+        cout<<i.second.first<<" ";
+}
+
+7. BOTTOM VIEW OF THE BINARY TREE
+Examples:
+
+                      20
+                    /    \
+                  8       22
+                /   \      \
+              5      3      25
+                    / \      
+                  10    14
+
+For the above tree the output should be 5, 10, 3, 14, 25.
+
+SOLUTION:
+-----USING THE HASH MAP ------O(NLOGN), O(N) ----- ONLY ONE CHANGE FROM THE PREVIOUS PROGRAM TOP VIEW
+
+void bottomviewOperation(bst* root, int dist, int level, map<int,pair<int,int>>& m){
+  //base case
+  if(root == NULL)
+    return;
+  //searching in map if not found then store the node's data and node's level
+  // if found m[dist] then, check the current lvl (level < m[dist].second)
+  if(m.find(dist) == m.end() || level >= m[dist].second){   // below level encountering(value will be greater) for the second condition to be true(only one change --> < to >=) // UPDATION
+      m[dist] = {root->data,level};
+  }
+  //recursion for the rest node -> left = -1 and right = +1
+  bottomviewOperation(root->left,dist-1,level+1,m);
+  bottomviewOperation(root->right,dist+1,level+1,m);
+}
+void bottomview(bst* root){
+    // map of distance and pair(node's data , node's level)
+    map<int,pair<int,int>> m;
+    
+    bottomviewOperation(root,0,0,m);
+    
+    for(auto i:m)
+        cout<<i.second.first<<" ";
+} 

@@ -1,0 +1,297 @@
+Day7: (2-pointer) 
+
+1.	Merge two sorted LinkedLists 
+Merge two sorted linked lists and return it as a new sorted list. The new list should be made by splicing together the nodes of the first two lists.
+
+Example:
+
+Input: 1->2->4, 1->3->4
+Output: 1->1->2->3->4->4
+
+SOLUTION:
+ ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+        // Using dummy node and pointing it to the -1 to get saved from the empty node condition 
+        ListNode* dummy = new ListNode(-1);
+        ListNode* last = dummy;  // last will be pointing to the dummy node
+        // making use of the similiar merge function from the merge sort
+        while(l1!=NULL && l2!=NULL){
+            if(l1->val < l2->val){
+                last->next = l1;
+                l1=l1->next;
+            }
+            else{
+                last->next = l2;
+                l2 = l2->next;
+            }
+            last = last->next;
+        }
+        // if l1 is not empty
+        if(l1!=NULL){
+            last->next = l1;
+        }
+        //if l2 is not empty
+        if(l2!=NULL){
+            last->next = l2;
+        }
+        //returing dummy next as dummy will be having -1 and from its next point itself will be have the merged sorted list 
+        return dummy->next;
+    }
+
+2.	Find the starting point of the loop. 
+SOLUTION:
+1. If a loop is found, initialize a slow pointer to head, let fast pointer be at its position.
+2. Move both slow and fast pointers one node at a time.
+3. The point at which they meet is the start of the loop.
+
+Node* detectAndRemoveLoop(Node* head) 
+{ 
+    // If list is empty or has only one node 
+    // without loop 
+    if (head == NULL || head->next == NULL) 
+        return NULL; 
+  
+    Node *slow = head, *fast = head; 
+  
+    // Move slow and fast 1 and 2 steps 
+    // ahead respectively. 
+    slow = slow->next; 
+    fast = fast->next->next; 
+  
+    // Search for loop using slow and 
+    // fast pointers 
+    while (fast && fast->next) { 
+        if (slow == fast) 
+            break; 
+        slow = slow->next; 
+        fast = fast->next->next; 
+    } 
+  
+    // If loop does not exist 
+    if (slow != fast) 
+        return NULL; 
+  
+    // If loop exists. Start slow from 
+    // head and fast from meeting point. 
+    slow = head; 
+    while (slow != fast) { 
+        slow = slow->next; 
+        fast = fast->next; 
+    } 
+  
+    return slow; 
+} 
+
+3.	3 sum 
+Given an array nums of n integers, are there elements a, b, c in nums such that a + b + c = 0? Find all unique triplets in the array which gives the sum of zero.
+
+Note:
+
+The solution set must not contain duplicate triplets.
+
+Example:
+
+Given array nums = [-1, 0, 1, 2, -1, -4],
+
+A solution set is:
+[
+  [-1, 0, 1],
+  [-1, -1, 2]
+]
+
+SOLUTION:
+BRUTE FORCE ----- O(N^3), O(N)---
+OPTIMAL ----- O(N^2), O(1) -----
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+       vector<vector<int>> ans;
+        if(nums.empty() || nums.size() < 3)
+            return ans;
+        
+        sort(nums.begin(),nums.end());
+
+        for(int i = 0; i<nums.size()-2; i++){
+            if(i==0 || (i>0 && nums[i]!=nums[i-1])){
+                
+                int sum = 0-nums[i]; 
+                int low = i+1; 
+                int high = nums.size() - 1;
+                    
+                while(low < high){
+
+                    if(nums[low]+nums[high] == sum){
+
+                        ans.push_back(vector<int>{nums[i],nums[low],nums[high]});
+
+                        while(low<high && nums[low] == nums[low+1])
+                            low++;
+
+                        while(low<high && nums[high] == nums[high-1])
+                            high--;
+
+                        low++;
+                        high--;
+                    }
+                    else if(nums[low]+nums[high] > sum)
+                        high--;
+                    else
+                        low++;
+                }
+            }
+        }
+        return ans;
+    }
+};
+
+4.	Trapping rainwater (HARD)--(SOLN - EASY)
+Given n non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it is able to trap after raining.
+Example:
+https://leetcode.com/problems/trapping-rain-water/
+Input: [0,1,0,2,1,0,1,3,2,1,2,1]
+Output: 6
+
+SOLUTION:
+----O(N), O(N) -----
+ int trap(vector<int>& height) {
+        if(height.size() <= 1)
+            return NULL;
+        int left_max = 0, right_max = 0;
+        int n = height.size();
+        int left[n], right[n];
+     // storing left values in left array   
+        for(int i =0;i<n;i++){
+            if(height[i] > left_max){
+                left_max = height[i];
+            }
+            left[i] = left_max;
+        }
+    // storing right values in right array
+        for(int i=n-1;i>=0;i--){
+            if(height[i] > right_max){
+                right_max = height[i];
+            }
+            right[i] = right_max;
+        }
+        // rain_count initializing it to 0
+        int rain_count = 0;
+        // logic :: =  min(left[i],right[i]) - height[i]
+        for(int i = 1;i<n-1;i++){
+            rain_count+= min(left[i],right[i]) - height[i];
+        }
+        return rain_count;
+    }
+
+-----OPTIMIZED SOLUTION ----O(N), O(1) ----
+ int trap(vector<int>& height) {
+        if(height.size() <= 1)
+            return 0;
+        int left_max=0, right_max=0,result = 0;
+        int low = 0, high = height.size() - 1;
+        
+        while(low<=high){
+            if(height[low] < height[high]){
+                if(height[low] > left_max)
+                    left_max = height[low];
+                else
+                    result+=left_max - height[low];
+                low++;
+            }
+            else{
+                if(height[high] > right_max)
+                    right_max = height[high];
+                else
+                    result+=right_max - height[high];
+                high--;
+            }
+        }
+        return result;
+    }
+
+
+5.	Remove Duplicate from Sorted array 
+Given a sorted array nums, remove the duplicates in-place such that each element appear only once and return the new length.
+
+Do not allocate extra space for another array, you must do this by modifying the input array in-place with O(1) extra memory.
+
+Example 1:
+
+Given nums = [1,1,2],
+
+Your function should return length = 2, with the first two elements of nums being 1 and 2 respectively.
+
+It doesn't matter what you leave beyond the returned length.
+Example 2:
+
+Given nums = [0,0,1,1,1,2,2,3,3,4],
+
+Your function should return length = 5, with the first five elements of nums being modified to 0, 1, 2, 3, and 4 respectively.
+
+It doesn't matter what values are set beyond the returned length.
+Clarification:
+
+Confused why the returned value is an integer but your answer is an array?
+
+Note that the input array is passed in by reference, which means modification to the input array will be known to the caller as well.
+
+Internally you can think of this:
+
+// nums is passed in by reference. (i.e., without making a copy)
+int len = removeDuplicates(nums);
+
+// any modification to nums in your function would be known by the caller.
+// using the length returned by your function, it prints the first len elements.
+for (int i = 0; i < len; i++) {
+    print(nums[i]);
+}
+
+SOLUTION:
+---O(N), O(1) -----
+IDEA : TWO POINTERS i & j
+
+int removeDuplicates(vector<int>& nums) {
+        int  n = nums.size();
+        if(n <= 1)
+            return n;
+        int i = 0;
+        for(int j = 1; j<n;j++){
+            if(nums[j]!=nums[i]){
+                i++;
+                nums[i] = nums[j];
+            } 
+        }
+        return i+1;
+    }
+
+6.	Max continuous number of 1’s  
+Given a binary array, find the maximum number of consecutive 1s in this array.
+
+Example 1:
+Input: [1,1,0,1,1,1]
+Output: 3
+Explanation: The first two digits or the last three digits are consecutive 1s.
+    The maximum number of consecutive 1s is 3.
+Note:
+
+The input array will only contain 0 and 1.
+The length of input array is a positive integer and will not exceed 10,000
+
+SOLUTION:
+----O(N),O(1)------
+
+int findMaxConsecutiveOnes(vector<int>& nums) {
+        int n = nums.size();
+        if(n == 0)
+            return n;
+        int max1 = 0;
+        int curr = 0;
+        for(int i =0;i<n;i++){
+            if(nums[i] == 1){
+                curr++;
+            }else{
+                max1 = max(curr,max1);
+                curr = 0;
+            }
+        }
+        return max(curr,max1);
+    }
+

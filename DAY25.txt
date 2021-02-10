@@ -1,0 +1,383 @@
+Day25: (Dynamic Programming) 
+
+1.	Max Product Subarray 
+Given an integer array nums, find the contiguous subarray within an array (containing at least one number) which has the largest product.
+
+Example 1:
+
+Input: [2,3,-2,4]
+Output: 6
+Explanation: [2,3] has the largest product 6.
+Example 2:
+
+Input: [-2,0,-1]
+Output: 0
+Explanation: The result cannot be 2, because [-2,-1] is not a subarray.
+
+SOLUTION:
+(I) BRUTE FORCE ------O(N^3), O(1) -----------FORM N^2 SUBARRAYS THEN MULTIPLY AND GET THE MAXIMUM
+(II) OPTIMIZED SOLUTION ----O(N), O(1) ----------------------------------------------------
+
+int maxProduct(vector<int>& nums) {
+        int curr_max = nums[0];
+        int curr_min = nums[0];
+        int prev_max = nums[0];
+        int prev_min = nums[0];
+        int ans = nums[0];
+        for(int i=1;i<nums.size();i++){
+            curr_max = max({nums[i],nums[i]*prev_max,nums[i]*prev_min});
+            curr_min = min({nums[i],nums[i]*prev_min,nums[i]*prev_max});
+            ans = max(ans,curr_max);
+            prev_max = curr_max;
+            prev_min = curr_min;
+        }
+        return ans;
+    }
+
+2. MAXIMUM PRODUCT OF THREE NUMBERS
+Given an integer array, find three numbers whose product is maximum and output the maximum product.
+
+Example 1:
+
+Input: [1,2,3]
+Output: 6
+ 
+
+Example 2:
+
+Input: [1,2,3,4]
+Output: 24
+ 
+
+Note:
+
+The length of the given array will be in range [3,104] and all elements are in the range [-1000, 1000].
+Multiplication of any three numbers in the input won't exceed the range of 32-bit signed integer.
+ 
+#
+SOLUTION:
+(I) BRUTE FORCE ---------O(N^3), O(1) ----------------
+(II) LITTLE OPTIMIZED -----O(NLOGN), O(LOGN) -----------USING THE SORTING 
+
+ int maximumProduct(vector<int>& nums) {
+        int n = nums.size();
+        if(n<2)
+            return -1;
+        sort(nums.begin(),nums.end());
+        return max(nums[0]*nums[1]*nums[n-1], nums[n-1]*nums[n-2]*nums[n-3]);
+    }
+
+(III) OPTIMIZED SOLUTION ------O(N), O(1)----------------------------
+IDEA:
+----> RETURNING THE MAX PRODUCT OF THE MAX1*MAX2*MAX3 AND MAX1*MIN1*MIN2--> IF THE NUMBER MIN1 AND MIN2 ARE NEGATIVE RESULTS IN THE POSITIVE VALUE.
+
+int maximumProduct(vector<int>& nums) {
+        if(nums.size()<2)
+            return -1;
+        int min1, min2, max1, max2, max3;
+        min1 = min2 = INT_MAX;
+        max1 = max2 = max3 = INT_MIN;
+        
+        for(int i: nums){
+            // finding the min1 & min2
+            if(i < min1){
+                min2 = min1;
+                min1 = i;
+            }
+            else if(i < min2){
+                min2 = i;
+            }
+            
+            // finding the max1, max2 & max2
+            if(i > max1){
+                max3 = max2;
+                max2 = max1;
+                max1 = i;
+            }
+            else if(i > max2){
+                max3 = max2;
+                max2 = i;
+            }
+            else if(i > max3){
+                max3 = i;
+            }
+        }
+        return max(max1*max2*max3, max1*min1*min2);
+    }
+
+3. HOUSE ROBBER
+You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed, the only constraint stopping you from robbing each of them is that adjacent houses have security system connected and it will automatically contact the police if two adjacent houses were broken into on the same night.
+
+Given a list of non-negative integers representing the amount of money of each house, determine the maximum amount of money you can rob tonight without alerting the police.
+
+ 
+
+Example 1:
+
+Input: nums = [1,2,3,1]
+Output: 4
+Explanation: Rob house 1 (money = 1) and then rob house 3 (money = 3).
+             Total amount you can rob = 1 + 3 = 4.
+Example 2:
+
+Input: nums = [2,7,9,3,1]
+Output: 12
+Explanation: Rob house 1 (money = 2), rob house 3 (money = 9) and rob house 5 (money = 1).
+             Total amount you can rob = 2 + 9 + 1 = 12.
+ 
+
+Constraints:
+
+0 <= nums.length <= 100
+0 <= nums[i] <= 400
+#
+SOLUTION:
+------------------------O(N), O(N) ------------------------------------------------------
+
+int rob(vector<int>& nums) {
+        int n = nums.size();
+         if(n == 0)
+             return 0;
+         if(n == 1)
+             return nums[0];
+         if(n == 2)
+             return max(nums[0],nums[1]);
+         vector<int> dp(n,0);
+         dp[0] = nums[0];
+         dp[1] = max(nums[0],nums[1]);
+         
+         for(int i=2;i<n;i++){
+             dp[i] = max(dp[i-1],dp[i-2]+nums[i]);
+         }
+         return dp[n-1];
+    }
+
+4. Longest Increasing Subsequence
+Given an unsorted array of integers, find the length of longest increasing subsequence.
+
+Example:
+
+Input: [10,9,2,5,3,7,101,18]
+Output: 4 
+Explanation: The longest increasing subsequence is [2,3,7,101], therefore the length is 4. 
+Note:
+
+There may be more than one LIS combination, it is only necessary for you to return the length.
+Your algorithm should run in O(n2) complexity.
+Follow up: Could you improve it to O(n log n) time complexity?
+#
+SOLUTION:
+(I) BRUTE FORCE APPROACH --------O(2^N), O(N^2) -------------USING BACKTRACKING ----------
+(II) OPTIMIZED APPROACH ---------O(N^2), O(N^2) --------------DP -------------------------
+
+int lengthOfLIS(vector<int>& nums) {
+        if(nums.size() == 0)
+            return 0;
+        vector<int> dp(nums.size(),1); // filling by all the zeroes
+        int max_ = 1;
+        for(int i = 1;i<nums.size();i++){
+            for(int j=0;j<i;j++){
+                if(nums[i] > nums[j] && dp[i] <= dp[j]){
+                    dp[i] = dp[i] + 1;
+                    max_ = max(max_,dp[i]);
+                }
+            }
+        }
+        return max_;
+    }
+
+5. EDIT DISTANCE
+Given two words word1 and word2, find the minimum number of operations required to convert word1 to word2.
+
+You have the following 3 operations permitted on a word:
+
+Insert a character
+Delete a character
+Replace a character
+Example 1:
+
+Input: word1 = "horse", word2 = "ros"
+Output: 3
+Explanation: 
+horse -> rorse (replace 'h' with 'r')
+rorse -> rose (remove 'r')
+rose -> ros (remove 'e')
+Example 2:
+
+Input: word1 = "intention", word2 = "execution"
+Output: 5
+Explanation: 
+intention -> inention (remove 't')
+inention -> enention (replace 'i' with 'e')
+enention -> exention (replace 'n' with 'x')
+exention -> exection (replace 'n' with 'c')
+exection -> execution (insert 'u')
+
+SOLUTION:
+(I) BRUTE FORCE ----------O(2^N), O(N^2) ------------------------
+(II) OPTIMIZED APPROACH ----- O(N^2), O(N^2)--------------------
+
+ int minDistance(string word1, string word2) {
+        int m = word1.size();
+        int n = word2.size();
+        int dp[m+1][n+1];
+        for(int i=0;i<=m;i++){
+            for(int j = 0;j<=n;j++){
+                if(i == 0)
+                    dp[i][j] = j;
+                else if(j == 0)
+                    dp[i][j] = i;
+                else{
+                    if(word1[i-1] == word2[j-1])
+                        dp[i][j] = dp[i-1][j-1];
+                    else
+                        dp[i][j] = 1 + min({dp[i][j-1],dp[i-1][j],dp[i-1][j-1]});
+                }
+            }
+        }
+        return dp[m][n];
+    }
+
+6. O/1 KNAPSACK PROBLEM
+Given weights and values of n items, put these items in a knapsack of capacity W to get the maximum total value in the knapsack. In other words, 
+given two integer arrays val[0..n-1] and wt[0..n-1] which represent values and weights associated with n items respectively. Also given an integer
+ W which represents knapsack capacity, find out the maximum value subset of val[] such that sum of the weights of this subset is smaller than or 
+equal to W. You cannot break an item, either pick the complete item or don’t pick it (0-1 property).  
+
+#
+SOLUTION:
+(I) BRUTE FORCE------------O(2^N), O(N^2) ----------------RECURSION---------------
+(II) OPTIMIZED SOLUTION-----O(N*W), O(N*W)-----------------DP---------------------
+
+int knapsack(int W, int wt[], int val[], int n){
+ int i, w;
+ int dp[n+1][W+1];
+ for(int i=0;i<=n;i++){
+  for(int w=0;w<=W;w++){
+    if(i == 0 || w == 0)
+	dp[i][w] = 0;
+    else if(wt[i-1] <= w)
+	dp[i][w] = max(val[i-1]+dp[i-1][w-wt[i-1]], dp[i-1][w]);
+    else
+	dp[i][w] = dp[i-1][w];
+    } 
+  }
+ return knapsack[n][W];
+return 0;
+}
+
+7. Maximum sum increasing subsequence  (SIMILIAR TO THE LONGEST INCREASING SUBSEQUENCE)
+Given an array of n positive integers. Write a program to find the sum of maximum sum subsequence of the given array such that the integers in the 
+subsequence are sorted in increasing order. For example, if input is {1, 101, 2, 3, 100, 4, 5}, then output should be 106 (1 + 2 + 3 + 100), if the
+ input array is {3, 4, 5, 10}, then output should be 22 (3 + 4 + 5 + 10) and if the input array is {10, 5, 4, 3}, then output should be 10.
+
+Solution
+This problem is a variation of standard Longest Increasing Subsequence (LIS) problem. We need a slight change in the Dynamic Programming solution of
+ LIS problem. All we need to change is to use sum as a criteria instead of length of increasing subsequence.
+
+Following are the Dynamic Programming solution to the problem :
+#
+----------------------O(N^2), O(N^2)-----------------------------------------------------------------
+
+int maxSUMIS(int arr[], int n){
+  int i, j;
+  int msis[n];
+
+  for(i=0;i<n;i++)
+	msis[i] = arr[i];
+
+ int max = msis[i];
+
+  for(int i=1;i<n;i++){
+     for(int j=0;j<i;j++){
+        if(arr[i] > arr[j] && msis[i] < msis[j]+arr[i]){
+             msis[i] = msis[j]+arr[i];
+             max = max(max,msis[i]);
+         }
+        }
+       }
+ return max;
+ }
+
+8. MATRIX CHAIN MULTIPLICATION
+----------------------------O(N^3), O(N^2)-----------------------------------------------
+int MatrixChainOrder(int p[], int n) 
+{ 
+  
+    /* For simplicity of the program, one  
+    extra row and one extra column are  
+    allocated in m[][]. 0th row and 0th 
+    column of m[][] are not used */
+    int m[n][n]; 
+  
+    int i, j, k, L, q; 
+  
+    /* m[i,j] = Minimum number of scalar  
+    multiplications needed to compute the 
+    matrix A[i]A[i+1]...A[j] = A[i..j] where 
+    dimension of A[i] is p[i-1] x p[i] */
+  
+    // cost is zero when multiplying 
+    // one matrix. 
+    for (i = 1; i < n; i++) 
+        m[i][i] = 0; 
+  
+    // L is chain length. 
+    for (L = 2; L < n; L++) 
+    { 
+        for (i = 1; i < n - L + 1; i++) 
+        { 
+            j = i + L - 1; 
+            m[i][j] = INT_MAX; 
+            for (k = i; k <= j - 1; k++) 
+            { 
+                // q = cost/scalar multiplications 
+                q = m[i][k] + m[k + 1][j] +  
+                    p[i - 1] * p[k] * p[j]; 
+                if (q < m[i][j]) 
+                    m[i][j] = q; 
+            } 
+        } 
+    } 
+  
+    return m[1][n - 1]; 
+} 
+    
+9. BURST BALLOONS(DP)(SIMILIAR TO THE MATRIX CHAIN MULTIPLICATION)
+Given n balloons, indexed from 0 to n-1. Each balloon is painted with a number on it represented by array nums. You are asked to burst all the balloons. If the you burst balloon i you will get nums[left] * nums[i] * nums[right] coins. Here left and right are adjacent indices of i. After the burst, the left and right then becomes adjacent.
+
+Find the maximum coins you can collect by bursting the balloons wisely.
+
+Note:
+
+You may imagine nums[-1] = nums[n] = 1. They are not real therefore you can not burst them.
+0 ≤ n ≤ 500, 0 ≤ nums[i] ≤ 100
+Example:
+
+Input: [3,1,5,8]
+Output: 167 
+Explanation: nums = [3,1,5,8] --> [3,5,8] -->   [3,8]   -->  [8]  --> []
+             coins =  3*1*5      +  3*5*8    +  1*3*8      + 1*8*1   = 167
+
+#
+----------------------------O(N^3), O(N^2)--------------------------------------------
+
+int maxCoins(vector<int>& nums) {
+     if(nums.empty())
+         return 0;
+        int n = nums.size();
+        nums.insert(nums.begin(),1);
+        nums.insert(nums.end(),1);
+        vector<vector<int>> dp(n+2,vector<int>(n+2,0));
+        
+        for(int len = 0;len<=n;len++){
+            for(int start = 1;start+len-1 <= n; start++){
+                int end = start+len-1;
+                for(int k=start;k<=end;k++){
+                    dp[start][end] = max(dp[start][end], 
+                            dp[start][k-1]+dp[k+1][end]+nums[start-1]*nums[k]*nums[end+1]);
+                }
+            }
+        }
+        return dp[1][n];
+    }

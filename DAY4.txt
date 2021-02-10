@@ -32,7 +32,7 @@ SOLUTION:----- WE NEED TO RETURN THE INDEX POSITIONS IF IT WAS FOR THE DETECT IF
             }
         }
                  
-for(int i=0;i<v.size();i++)
+	for(int i=0;i<v.size();i++)
         {
         	if(v[i]==nums[l]||v[i]==nums[r])
         	ans.push_back(i);
@@ -364,7 +364,7 @@ long long subarrayXor(int arr[], int n, int m)
     return ans; 
 } 
 
-OPTIMIZED SOLUTION -------O(N), O(N) ------(TO BE UNDERSTOOD LATER)
+OPTIMIZED SOLUTION -------O(N), O(N) ------
 (UNDER CONSTRUCTION)
 // Returns count of subarrays of arr with XOR 
 // value equals to m 
@@ -443,7 +443,7 @@ int lengthOfLongestSubstring(string s)
     
 		while( i<n && j<n)
 		{
-			if(set.find(s[j]) == set.end()) //If the character does not in the set
+			if(set.find(s[j]) == set.end()) //If the character does not exist in the set
 			{
 				set.insert(s[j++]); //Insert the character in set and update the j counter
 				ans = max(ans, j-i); //Check if the new distance is longer than the current answer
@@ -458,3 +458,99 @@ int lengthOfLongestSubstring(string s)
     
 		return ans;
 	}
+
+8. SUBARRAY SUM EQUALS K
+Given an array of integers and an integer k, you need to find the total number of continuous subarrays whose sum equals to k.
+
+Example 1:
+
+Input:nums = [1,1,1], k = 2
+Output: 2
+ 
+
+Constraints:
+
+The length of the array is in range [1, 20,000].
+The range of numbers in the array is [-1000, 1000] and the range of the integer k is [-1e7, 1e7].
+
+-----BRUTE FORCE -----O(N^2), O(1) -----------------------------------------------
+----OPTIMIZED SOLUTION ----USING MAP ------O(N), O(N) ----------------------------
+
+#
+int subarraySum(vector<int>& nums, int k) {
+     int n = nums.size();
+        if(n == 0)
+            return 0;
+        unordered_map<int,int> m;
+        int i=0, count = 0, currentsum = 0;
+        
+        for(int i:nums){
+            currentsum+=i;
+            
+            if(currentsum == k)
+                count++;
+            
+            if(m.find(currentsum-k)!=m.end())
+                count+=m[currentsum-k];
+            
+            m[currentsum]++;
+    }
+        return count;
+  }
+
+9. MAJORITY ELEMENT
+Given an array of size n, find the majority element. The majority element is the element that appears more than ⌊ n/2 ⌋ times.
+
+You may assume that the array is non-empty and the majority element always exist in the array.
+
+Example 1:
+
+Input: [3,2,3]
+Output: 3
+Example 2:
+
+Input: [2,2,1,1,1,2,2]
+Output: 2
+#
+-------------------------O(N), O(1)---------------------------------------------------
+
+ int majorityElement(vector<int>& nums) {
+        int major=nums[0],count = 0;
+        for(int n:nums){
+            if(n == major)
+                count++;
+            else
+                count--;
+            if(count == 0){
+                major = n;
+                count = 1;
+            }
+        }
+        return major;
+    }
+
+10. Container with most water
+Given n non-negative integers a1, a2, ..., an , where each represents a point at coordinate (i, ai). n vertical lines are drawn such that the two endpoints of line i is at (i, ai) and (i, 0). Find two lines, which together with x-axis forms a container, such that the container contains the most water.
+
+Note: You may not slant the container and n is at least 2.
+Example:
+
+Input: [1,8,6,2,5,4,8,3,7]
+Output: 49
+
+LINK: https://leetcode.com/problems/container-with-most-water/
+#
+---------------------------O(N), O(1)--------------------------------------------
+
+int maxArea(vector<int>& height) {
+     int maxarea = 0, l = 0, r = height.size()-1;
+        while(l < r){
+            maxarea = max(maxarea,min(height[l],height[r])*(r - l));
+            if(height[l] < height[r])
+                l++;
+            else 
+                r--;
+        }
+        return maxarea;
+    }
+

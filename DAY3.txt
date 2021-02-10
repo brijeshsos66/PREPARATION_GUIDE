@@ -41,7 +41,7 @@ SOLUTION:
         return ans;
     }
 
-2.	Find n^x in log N 
+2.	Find x^n in log N 
 Given two integers x and n, write a function to compute xn. We may assume that x and n are small and overflow doesn’t happen.
 Examples :
 
@@ -81,21 +81,42 @@ SOLUTION:
 		return x*temp*temp;
 		}
 -------O(LOGN),O(1)-----
-(IV) DOING THE SAME BUT IT WILL BE APPLICABLE TO NEGATIVE POWER AS WELL 
-	float power(float x, float n){
-	      if(n == 0)
-		return 1;
- 	      float temp = power(x,n/2);
-	      if(n%2==0)
-		return temp * temp;
-	      else{
-		if(y>0)
-		     return x*temp*temp;
-		else
-	             return (temp*temp)/x;
-		}
-	   }
-------O(LOGN),O(1) ------
+=> IMPLEMENT POW FOR BOTH THE + & - NUMBERS AND POWERS
+
+Implement pow(x, n), which calculates x raised to the power n (xn).
+
+Example 1:
+
+Input: 2.00000, 10
+Output: 1024.00000
+Example 2:
+
+Input: 2.10000, 3
+Output: 9.26100
+Example 3:
+
+Input: 2.00000, -2
+Output: 0.25000
+Explanation: 2-2 = 1/22 = 1/4 = 0.25
+Note:
+
+-100.0 < x < 100.0
+n is a 32-bit signed integer, within the range [−231, 231 − 1]
+#
+double myPow(double x, int n) {
+        if(n==0)
+            return 1;
+        if(n==1)
+            return x;
+        if(n==-1)
+            return 1/x;
+        
+        double y = myPow(x,n/2);
+        if(n%2 == 0)
+            return y*y;
+        
+        return y*y*(n<0?1/x:x);
+    }
 
 3.	Count trailing zeros in factorial of a number 
 Given an integer n, write a function that returns count of trailing zeroes in n!.
@@ -162,7 +183,7 @@ USING EUCLIDEAN ALGORITHM
 	return gcd(b,a%b);
 	}
 
-5.	Grid Unique Paths 
+5.	Grid Unique Paths - 1(DP)
 A robot is located at the top-left corner of a m x n grid (marked 'Start' in the diagram below).
 
 The robot can only move either down or right at any point in time. The robot is trying to reach the bottom-right corner of the grid (marked 'Finish' in the diagram below).
@@ -208,4 +229,237 @@ SOLUTION:
         
     }
 
+6. GRID UNIQUE PATHS 2 (DP)
+A robot is located at the top-left corner of a m x n grid (marked 'Start' in the diagram below).
+
+The robot can only move either down or right at any point in time. The robot is trying to reach the bottom-right corner of the grid (marked 'Finish' in the diagram below).
+
+Now consider if some obstacles are added to the grids. How many unique paths would there be?
+An obstacle and empty space is marked as 1 and 0 respectively in the grid.
+
+Note: m and n will be at most 100.
+
+Example 1:
+
+Input:
+[
+  [0,0,0],
+  [0,1,0],
+  [0,0,0]
+]
+Output: 2
+Explanation:
+There is one obstacle in the middle of the 3x3 grid above.
+There are two ways to reach the bottom-right corner:
+1. Right -> Right -> Down -> Down
+2. Down -> Down -> Right -> Right
+
+SOLUTION:
+-----O(M*N), O(M*N) --------
+
+int uniquePathsWithObstacles(vector<vector<int>>& grid) {
+        if(grid.size() == 0 || grid[0].size() == 0)
+            return 0;
+        int m = grid.size();
+        int n = grid[0].size();
+        vector<vector<int>> paths(m,vector<int>(n,0)); // initializing all the paths to 0
+        
+        //special case, when obstacle is at the first position, then return 0
+        if(grid[0][0] == 1)
+            return 0;
+        
+        //checking obstacle in each row
+        for(int i=0;i<m;i++){
+            if(grid[i][0]!=1){
+                paths[i][0] = 1;
+            }
+            else
+                break;
+        }
+        
+        //checking obstacle in each column
+        for(int j=0;j<n;j++){
+            if(grid[0][j]!=1){
+                paths[0][j] = 1;
+            }
+            else
+                break;
+        }
+        
+        //doing the calculation based on the paths vector & grid vector 
+        for(int i=1;i<m;i++){
+            for(int j=1;j<n;j++){
+                if(grid[i][j]!=1){
+                    paths[i][j] = paths[i-1][j] + paths[i][j-1];
+                }
+            }
+        }
+        return paths[m-1][n-1];
+        
+    }
+
+7. Largest Number
+Given a list of non negative integers, arrange them such that they form the largest number.
+
+Example 1:
+
+Input: [10,2]
+Output: "210"
+Example 2:
+
+Input: [3,30,34,5,9]
+Output: "9534330"
+Note: The result may be very large, so you need to return a string instead of an integer.
+
+SOLUTION:
+#
+------------------O(NLOGN), O(N) --------------------------------------------------------
+ string largestNumber(vector<int>& nums) {
+        if(nums.size() == 0)
+            return "";
+        sort(nums.begin(),nums.end(),[](int a, int b){
+            return to_string(a)+to_string(b) > to_string(b)+to_string(a);
+        });
+        string result = "";
+        for(int i=0;i<nums.size();i++)
+            result+=to_string(nums[i]);
+        
+        return result[0]=='0'?"0":result;  // if the input is like [0,0,0] --> output --> "0" & not "000"
+    }
+
+8. Array of alternate +ve and -ve no.s
+Given an unsorted array of positive and negative numbers. Your task is to create an array of alternate positive and negative numbers without changing the relative order of positive and negative numbers.
+
+Input:
+First line of input contains an integer T denoting the number of test cases. For each testcase, first line contains N, size of array. The subsequent line contains N array elements.
+
+Output:
+Print the modified array.
+Note: Array should start with positive number.
+
+Constraints:
+1 ≤ T ≤ 100
+1 ≤ N ≤ 107
+-106 ≤ a[] ≤ 107
+
+Example:
+Input:
+1
+9
+9 4 -2 -1 5 0 -5 -3 2
+
+Output:
+9 -2 4 -1 5 -5 0 -3 2
+
+#
+(I) BRUTE FORCE ------MAKE TWO ARRAY THEN PRINT ------O(M+N), O(M+N)-------
+(II) OPTIMIZED SOLUTION --------O(M+N), O(1)-------------------------------
+
+void printarr(int a[], int n){
+    int i = 0, j = 0;
+    while(i<n&&j<n)
+    {
+        while(i<n)
+        {
+            if(a[i]>=0)
+             break;
+            i++;
+        }
+        if(i!=n)
+         cout<<a[i]<<" ";
+        while(j<n)
+        {
+            if(a[j]<0)
+             break;
+             j++;
+        }
+        if(j!=n)
+         cout<<a[j]<<" ";
+        i++;j++;
+    }
+    while(i<n){
+        if(a[i]>=0)
+        cout<<a[i]<<" ";i++;
+    }
+    while(j<n){
+        if(a[j]<0)
+        cout<<a[j]<<" ";
+        j++;
+    }
+}
+
+9. JUMP GAME
+Given an array of non-negative integers, you are initially positioned at the first index of the array.
+
+Each element in the array represents your maximum jump length at that position.
+
+Determine if you are able to reach the last index.
+
  
+
+Example 1:
+
+Input: nums = [2,3,1,1,4]
+Output: true
+Explanation: Jump 1 step from index 0 to 1, then 3 steps to the last index.
+Example 2:
+
+Input: nums = [3,2,1,0,4]
+Output: false
+Explanation: You will always arrive at index 3 no matter what. Its maximum jump length is 0, which makes it impossible to reach the last index.
+ 
+
+Constraints:
+
+1 <= nums.length <= 3 * 10^4
+0 <= nums[i][j] <= 10^5
+#
+-----------------------------------------O(N), O(1)-----------------------------------------
+bool canJump(vector<int>& nums) {
+        int reach=0;
+        int n = nums.size();
+        if(n == 0)
+            return 0;
+        for(int i=0;i<n;i++){
+            if(i>reach)
+                return false;
+            reach = max(reach,i+nums[i]);
+            if(reach >= n)
+                return true;
+        }
+        return true;
+    }
+
+10. JUMP GAME II
+Given an array of non-negative integers, you are initially positioned at the first index of the array.
+
+Each element in the array represents your maximum jump length at that position.
+
+Your goal is to reach the last index in the minimum number of jumps.
+
+Example:
+
+Input: [2,3,1,1,4]
+Output: 2
+Explanation: The minimum number of jumps to reach the last index is 2.
+    Jump 1 step from index 0 to 1, then 3 steps to the last index.
+Note:
+
+You can assume that you can always reach the last index.
+#
+-----------------------------O(N), O(1)-----------------------------------------------
+int jump(vector<int>& nums) {
+        int jumps = 0;
+        int n = nums.size(), max_reach = 0, curr_reach = 0;
+        if(n<=1)
+            return 0;
+        for(int i=0;i<n;i++){
+            if(i>curr_reach){
+                jumps++;
+                curr_reach = max_reach;
+            }
+            max_reach = max(max_reach,i+nums[i]);
+        }
+        return jumps;
+    }
+

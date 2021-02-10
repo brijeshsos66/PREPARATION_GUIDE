@@ -1,0 +1,282 @@
+Day 19: (Binary Tree) 
+1.	Maximum path sum 
+Given a non-empty binary tree, find the maximum path sum.
+
+For this problem, a path is defined as any sequence of nodes from some starting node to any node in the tree along the parent-child connections. The path must contain at least one node and does not need to go through the root.
+
+Example 1:
+
+Input: [1,2,3]
+
+       1
+      / \
+     2   3
+
+Output: 6
+Example 2:
+
+Input: [-10,9,20,null,null,15,7]
+
+   -10
+   / \
+  9  20
+    /  \
+   15   7
+
+Output: 42
+
+SOLUTION:
+#
+int dfs(TreeNode* root, int& answer){
+        // if we encounter null return 0 : BASE CASE
+        if(!root)
+            return 0;
+        
+        // calculating for the left and right childrens
+        int left = dfs(root->left,answer);
+        int right = dfs(root->right,answer);
+        
+        //updating the answer
+        answer = max(answer,left+right+root->val);
+        
+        //return the maximum of 0 & max(left,right)+ root->val
+        return max(0,max(left,right)+root->val);
+    }
+    int maxPathSum(TreeNode* root) {
+        int answer = INT_MIN;
+        dfs(root,answer);
+        return answer;
+    }
+
+2. CONSTRUCT BINARY TREE FROM PREORDER AND INORDER TRAVERSAL
+Given preorder and inorder traversal of a tree, construct the binary tree.
+
+Note:
+You may assume that duplicates do not exist in the tree.
+
+For example, given
+
+preorder = [3,9,20,15,7]
+inorder = [9,3,15,20,7]
+Return the following binary tree:
+
+    3
+   / \
+  9  20
+    /  \
+   15   7
+#
+SOLUTION:
+ TreeNode* helper(int preStart, int inStart, int inEnd,vector<int>& preorder, vector<int>& inorder){
+        if(preStart > preorder.size()-1 || inStart > inEnd)
+            return NULL;
+        TreeNode* root = new TreeNode(preorder[preStart]);
+        int inIndex = 0;
+        for(int i=inStart; i<=inEnd; i++){
+            if(root->val == inorder[i]){
+                inIndex = i;
+            }
+        }
+        root->left = helper(preStart+1,inStart,inIndex-1,preorder,inorder);
+        root->right = helper(preStart+inIndex-inStart+1,inIndex+1,inEnd,preorder,inorder);
+        return root;
+    }
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+        return helper(0,0,inorder.size()-1,preorder,inorder);
+    }
+
+3. SYMMETRIC TREE(SINGLE TREE MIRROR OF ITSELF)
+Given a binary tree, check whether it is a mirror of itself (ie, symmetric around its center).
+
+For example, this binary tree [1,2,2,3,4,4,3] is symmetric:
+
+    1
+   / \
+  2   2
+ / \ / \
+3  4 4  3
+ 
+
+But the following [1,2,2,null,3,null,3] is not:
+
+    1
+   / \
+  2   2
+   \   \
+   3    3
+ 
+
+Follow up: Solve it both recursively and iteratively.
+SOLUTION:
+# (I) RECURSIVELY ---O(N), O(N) ------
+
+bool isMirror(TreeNode* root1,TreeNode* root2){
+        //base case: if both empty then return true
+        if(root1 == NULL && root2 == NULL)
+            return true;
+        
+        //if anyone of them is null, that means other is not left dimension not equal to the right dimension
+        if(root1 == NULL || root2 == NULL)
+            return false;
+        //check for their children values
+        if(root1->val == root2->val)
+            //if satisfies check for their childrens as well
+            return isMirror(root1->left,root2->right)  && isMirror(root1->right,root2->left);
+        
+        //if neither satisfies then it is not symmetric
+        return false;
+    }
+bool isSymmetric(TreeNode* root) {
+        //for checking passing the same root 2 twice
+        return isMirror(root,root);
+    }
+
+(II) ITERATIVELY
+USING THE TWO STACKS         ----O(N), O(N) -----
+-------------------------------------------------------------------------
+bool isSymmetric(TreeNode* root) {
+        if(!root) return true;
+        stack<TreeNode*> s1, s2;
+        s1.push(root->left);
+        s2.push(root->right);
+        while(!s1.empty() && !s2.empty()){
+            TreeNode* x1 = s1.top(); s1.pop();
+            TreeNode* x2 = s2.top(); s2.pop();
+            if(!x1 && !x2) continue;
+            if(!x1 || !x2 || x1->val!=x2->val) return false;
+            s1.push(x1->left); s1.push(x1->right);
+            s2.push(x2->right); s2.push(x2->left);
+        }
+        if(s1.empty() && s2.empty()) return true;
+        else return false;   
+    }
+
+4. CONVERT A BINARY TREE INTO ITS MIRROR TREE
+       4 
+      / \ 
+     2   5 
+    / \ 
+   1   3 
+  
+ is changed to... 
+       4 
+      / \ 
+     5   2 
+        / \ 
+       3   1
+
+SOLUTION:
+#
+void Mirror(TreeNode* root){
+ if(root == NULL)
+ 	return;
+ else{
+  Node* temp;
+  
+  //do the subtrees
+  Mirror(root->left);
+  Mirror(root->right);
+
+ //swap the pointers in this node
+ temp = node->left;
+ node->left = node->right;
+ node->right = temp;
+ }
+}
+
+5. Flatten Binary Tree to LinkedList    
+Given a binary tree, flatten it to a linked list in-place.
+
+For example, given the following tree:
+
+    1
+   / \
+  2   5
+ / \   \
+3   4   6
+The flattened tree should look like:
+
+1
+ \
+  2
+   \
+    3
+     \
+      4
+       \
+        5
+         \
+          6
+
+SOLUTION:
+void flatten(TreeNode* root) {
+        if(root == NULL || root->left == NULL && root->right == NULL)
+            return;
+        
+        if(root->left!=NULL){
+            //call for the left node
+            flatten(root->left);
+            
+        //storing right value in the temp and then reverse the left with right and assign right with NULL
+            TreeNode* temp = root->right;
+            root->right = root->left;
+            root->left = NULL;
+            
+            //storing the current value of right just now assigned from previous step in cur
+            TreeNode* cur = root->right;
+            
+            //for the storing the previous right which is in temp 
+            // we need to find the position in the right to store that value
+            while(cur->right!=NULL){
+                cur = cur->right;
+            }
+            
+            //store the temp in the current right
+            cur->right = temp;
+        } //done with the left side
+        
+        //check for the right side
+        if(root->right!=NULL){
+            flatten(root->right);
+        }
+    }
+
+6.	Construct Binary Tree from Inorder and Postorder 
+Example
+
+       13
+     /    \
+    2      3
+   / \    /
+  5   6  7
+        / \
+       8   9
+            \
+            10
+            /
+          12
+
+5,  2,  6,  13,  8,  7,  9,  12,  10,  3   (INORDER)
+---left--- root  ---------right---------
+
+5,  6,  2,  8,  12,  10,  9,  7,  3,  13  (POSTORDER)
+---left---	---------right---------- root 
+
+#
+    TreeNode* AddNode(vector<int>& inorder, vector<int>& postorder, int inleft, int inright, int postroot){
+    if(inleft > inright) return NULL;
+    
+    TreeNode* root = new TreeNode(postorder[postroot]);
+    
+    int inroot = inright;
+    while(inorder[inroot] != postorder[postroot]) inroot--;
+    
+    root->left = AddNode(inorder, postorder, inleft, inroot - 1, postroot - (inright - inroot) - 1);
+    root->right = AddNode(inorder, postorder, inroot + 1, inright, postroot - 1 );
+    
+    return root;
+}
+
+TreeNode* buildTree(vector<int>& inorder, vector<int>& postorder) {
+    return AddNode(inorder, postorder, 0, inorder.size() - 1, postorder.size() - 1);
+}

@@ -1,0 +1,392 @@
+DAY 14:
+
+1. NEXT SMALLER ELEMENT
+Given an array, print the Next Smaller Element (NSE) for every element. The Smaller smaller Element for an element x is the first smaller element on the right side of x in array. Elements for which no smaller element exist (on right side), consider next smaller element as -1.
+
+Examples:
+a) For any array, rightmost element always has next smaller element as -1.
+b) For an array which is sorted in increasing order, all elements have next smaller element as -1.
+c) For the input array [4, 8, 5, 2, 25}, the next smaller elements for each element are as follows.
+
+Element       NSE
+   4      -->   2
+   8      -->   5
+   5      -->   2
+   2      -->   -1
+   25     -->   -1
+d) For the input array [13, 7, 6, 12}, the next smaller elements for each element are as follows.
+
+  Element        NSE
+   13      -->    7
+   7       -->    6
+   6       -->    -1
+   12     -->     -1
+
+SOLUTION:
+---NAIVE APPROACH --- O(N^2), O(1) ------ FOR LOOP OVER FOR
+void printNSE(int arr[], int n) 
+{ 
+    int next, i, j; 
+    for (i=0; i<n; i++) 
+    { 
+        next = -1; 
+        for (j = i+1; j<n; j++) 
+        { 
+            if (arr[i] > arr[j]) 
+            { 
+                next = arr[j]; 
+                break; 
+            } 
+        } 
+        printf("%d -- %d\n", arr[i], next); 
+    } 
+} 
+
+---OPTIMIZED APPROACH --- O(N), O(N) ---- USING THE STACKS SIMILIAR TO THE NEXT GREATER ELEMENT
+
+vector<int> smaller(vector<int>& A){
+    vector<int> result(a.size());
+    stack<int> s;
+    
+    for(int i=a.size()-1;i>=0;i--){
+        // pop all the elements which are greater than the current element
+        if(!s.empty()){
+            while(!s.empty() && s.top() >= A[i]) // instead of >= it is <= for the next greater element
+                s.pop();
+        }
+        
+        //if all the elements gets popped out then no element left in the stack so store the -1
+        if(s.empty())
+            result[i] = -1;
+        else
+            result[i] = s.top();
+            
+        //store the current element in the stack
+        s.push(A[i]);
+    }
+    return result;
+}
+
+2. IMPLEMENT MIN STACK
+Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.
+
+push(x) -- Push element x onto stack.
+pop() -- Removes the element on top of the stack.
+top() -- Get the top element.
+getMin() -- Retrieve the minimum element in the stack.
+ 
+
+Example 1:
+
+Input
+["MinStack","push","push","push","getMin","pop","top","getMin"]
+[[],[-2],[0],[-3],[],[],[],[]]
+
+Output
+[null,null,null,null,-3,null,0,-2]
+
+Explanation
+MinStack minStack = new MinStack();
+minStack.push(-2);
+minStack.push(0);
+minStack.push(-3);
+minStack.getMin(); // return -3
+minStack.pop();
+minStack.top();    // return 0
+minStack.getMin(); // return -2
+ 
+
+Constraints:
+
+Methods pop, top and getMin operations will always be called on non-empty stacks.
+#
+IDEA :
+IT IS VERY SIMPLE FOLLOW THE FOLLOWING STEPS:
+(I) CREATE TWO STACK ( S AND MINSTACK)
+(II) IN THE PUSH FUCTION -> PUSH THE ELEMENT IN THE NORMAL STACK S AND IN THE MINSTACK --> IT IS EMPTY PUSH THE ELEMENT ELSE IF VALUE IS LESS THAN THE STACK TOP
+ELEMENT THEN PUSH VALUE ELSE STORE THE PREVIOUS MINSTACK TOP VALUE WHICH WILL BE SMALLER.
+(III) IN THE POP OPERATION IF STACK S IS EMPTY THEN RETURN NULL VALUE ELSE POP FROM BOTH THE STACKS (S & MINSTACK).
+(IV) IN THE TOP OPERATION RETURN THE S.TOP().
+(V) IN THE GETMIN OPERATION RETURN THE MINSTACK.TOP().
+
+---ALL OPERATION WILL THE TIME O(1) ----------
+
+class MinStack {
+public:
+    /** initialize your data structure here. */
+    stack<int> s;
+    stack<int> minstack;
+    MinStack() {
+        
+    }
+    
+    void push(int x) {
+        s.push(x);
+        if(minstack.empty())
+            minstack.push(x);
+        else{
+            if(x < minstack.top())
+                minstack.push(x);
+            else
+                minstack.push(minstack.top());
+        }
+    }
+    
+    void pop() {
+        if(s.empty())
+            return;
+        else{
+            s.pop();
+            minstack.pop();
+        }
+    }
+    
+    int top() {
+       return s.top();
+    }
+    
+    int getMin() {
+        return minstack.top();
+    }
+};
+
+3. ROTTING ORANGES (USING BFS)
+In a given grid, each cell can have one of three values:
+
+the value 0 representing an empty cell;
+the value 1 representing a fresh orange;
+the value 2 representing a rotten orange.
+Every minute, any fresh orange that is adjacent (4-directionally) to a rotten orange becomes rotten.
+
+Return the minimum number of minutes that must elapse until no cell has a fresh orange.  If this is impossible, return -1 instead.
+Example 1:
+Input: [[2,1,1],[1,1,0],[0,1,1]]
+Output: 4
+Example 2:
+
+Input: [[2,1,1],[0,1,1],[1,0,1]]
+Output: -1
+Explanation:  The orange in the bottom left corner (row 2, column 0) is never rotten, because rotting only happens 4-directionally.
+Example 3:
+
+Input: [[0,2]]
+Output: 0
+Explanation:  Since there are already no fresh oranges at minute 0, the answer is just 0.
+ 
+
+Note:
+
+1 <= grid.length <= 10
+1 <= grid[0].length <= 10
+grid[i][j] is only 0, 1, or 2.
+
+SOLUTION:
+----O(M*N), O(M*N) -----
+
+int orangesRotting(vector<vector<int>>& grid) {
+        queue<pair<int,int>> q; // queue for storing the indexes of the i,j th coordinates
+        int cnt = 0;   // counter for storing the number of 1's(fresh oranges)
+        
+        int m = grid.size();  // row size
+        int n = grid[0].size(); // column size
+        
+        for(int i=0;i<m;i++){
+            for(int j=0;j<n;j++){
+                if(grid[i][j] == 2)
+                    q.push({i,j});  // pushing the i,j th coordinates in the queue
+                if(grid[i][j] == 1)
+                    cnt++;           // if 1 found then increment the counter variable
+            }
+        }
+        if(cnt == 0) // if cnt == 0 that means number of 1's are zero then no time will be taken so return 0
+            return 0;
+        int ans = -1;
+        
+        while(!q.empty()){
+            int s = q.size();  // queue size s
+            // WE ARE TAKING THE QUEUE SIZE HERE ITSELF SO THAT IN THE NEXT ITERATIONS WE WILL INSERT THE 
+            // NEXT COORDINATES IN THE QUEUE, SO THAT IT DOESN'T GO BEYOND THE s LIMIT AND REST COORDINATES
+            // WILL BE PROCESSED IN THE NEXT ITERATION AT TIME + 1.
+            ans++; // incrementing the time i.e, minutes
+            
+            for(int i = 0; i<s; i++){  
+                pair<int,int> cur = q.front();  // storing the index values in the cur 
+                q.pop();  // removing that element from the queue
+                // checking for the left index of i ie., [i-1][j]
+                if(cur.first > 0 && grid[cur.first - 1][cur.second] == 1){
+                    grid[cur.first - 1][cur.second] = 2;   // making it as 2
+                    cnt--;                                 // decrementing the 1 counter by 1
+                    q.push({cur.first-1,cur.second});      // storing this indexes in the queue
+                }
+                // checking for the right index of i ie., [i+1][j]
+                if(cur.first < m-1 && grid[cur.first + 1][cur.second] == 1){
+                    grid[cur.first + 1][cur.second] = 2;
+                    cnt--;
+                    q.push({cur.first+1,cur.second});
+                }
+                //checking for the top or the left index of j i.e., [i][j-1]
+                if(cur.second > 0 && grid[cur.first][cur.second - 1] == 1){
+                    grid[cur.first][cur.second - 1] = 2;
+                    cnt--;
+                    q.push({cur.first,cur.second-1});
+                }
+                // checking for the down or the right index of j i.e., [i][j+1]
+                if(cur.second < n-1 && grid[cur.first][cur.second + 1] == 1){
+                    grid[cur.first][cur.second+1] = 2;
+                    cnt--;
+                    q.push({cur.first,cur.second+1});
+                }
+            }
+        }
+        if(cnt == 0)  // if successful then return the number of minutes consumed or time else -1
+            return ans;
+        return -1;
+    }
+
+
+4. SLIDING WINDOW MAXIMUM
+---- NAIVE APPROACH ----O((N-K)*K) = O(N*K), O(N) ---- CHECKING MAXIMUM AT EACH WINDOW
+---- OPTIMIZED APPROACH --- O(N) , O(N) ---- USING THE DEQUE
+
+Given an array nums, there is a sliding window of size k which is moving from the very left of the array to the very right. You can only see the k numbers in the window. Each time the sliding window moves right by one position. Return the max sliding window.
+
+Follow up:
+Could you solve it in linear time?
+
+Example:
+
+Input: nums = [1,3,-1,-3,5,3,6,7], and k = 3
+Output: [3,3,5,5,6,7] 
+Explanation: 
+
+Window position                Max
+---------------               -----
+[1  3  -1] -3  5  3  6  7       3
+ 1 [3  -1  -3] 5  3  6  7       3
+ 1  3 [-1  -3  5] 3  6  7       5
+ 1  3  -1 [-3  5  3] 6  7       5
+ 1  3  -1  -3 [5  3  6] 7       6
+ 1  3  -1  -3  5 [3  6  7]      7
+ 
+
+Constraints:
+
+1 <= nums.length <= 10^5
+-10^4 <= nums[i] <= 10^4
+1 <= k <= nums.length
+#
+vector<int> maxSlidingWindow(vector<int>& nums, int k){
+  deque<int> d;
+        vector<int> res;
+        
+        for(int i=0;i<nums.size();i++){
+            //removing the previous smaller elements indexes from the deque
+            while(!d.empty() && nums[i] >= nums[d.back()])
+                d.pop_back();
+            //pushing the elements indexes in the deque
+            d.push_back(i);
+            //the current window maximum index will be in the front so push its value in the result vector
+            if(i>=k-1)
+                res.push_back(nums[d.front()]);
+            //if the element stored is of previous window maximum then remove it from the deque
+            if(d.front() <= i-k+1)
+                d.pop_front();
+        }
+        return res;
+    }
+
+5. LARGEST RECTANGLE IN HISTOGRAM
+Given n non-negative integers representing the histogram's bar height where the width of each bar is 1, find the area of largest rectangle in the histogram.
+Example:
+
+Input: [2,1,5,6,2,3]
+Output: 10
+#
+--------------O(N), O(N) -----------------
+class Solution {
+public:
+    int largestRectangleArea(vector<int>& heights) {
+    stack<int> st;
+    int i(0), temp, curArea(0), maxArea(0);
+
+    while(i < heights.size()) {
+        if(st.empty() || heights[i] >= heights[st.top()]) st.push(i++);
+        else {
+            temp = st.top(); st.pop();
+            curArea = heights[temp] * (st.empty() ? i : i - st.top() - 1);
+            if(curArea > maxArea) maxArea = curArea;
+        }
+    }
+
+    while(!st.empty()) {
+        temp = st.top(); st.pop();
+        curArea = heights[temp] * (st.empty() ? i : i - st.top() - 1);
+        if(curArea > maxArea) maxArea = curArea;
+    } 
+
+    return maxArea;
+}
+};
+
+6. LRU CACHE
+Design and implement a data structure for Least Recently Used (LRU) cache. It should support the following operations: get and put.
+
+get(key) - Get the value (will always be positive) of the key if the key exists in the cache, otherwise return -1.
+put(key, value) - Set or insert the value if the key is not already present. When the cache reached its capacity, it should invalidate the least recently used item before inserting a new item.
+
+The cache is initialized with a positive capacity.
+
+Follow up:
+Could you do both operations in O(1) time complexity?
+
+Example:
+
+LRUCache cache = new LRUCache( 2 /* capacity */ );
+
+cache.put(1, 1);
+cache.put(2, 2);
+cache.get(1);       // returns 1
+cache.put(3, 3);    // evicts key 2
+cache.get(2);       // returns -1 (not found)
+cache.put(4, 4);    // evicts key 1
+cache.get(1);       // returns -1 (not found)
+cache.get(3);       // returns 3
+cache.get(4);       // returns 4
+#
+
+class LRUCache {
+private:
+    int cap_;
+    list<pair<int, int>> data_;
+    unordered_map<int, list<pair<int, int>>::iterator> table;
+public:
+    LRUCache(int capacity) : cap_(capacity) {}
+    
+    int get(int key) {
+        auto it = table.find(key);
+        if (it == table.end()) {
+            return -1;
+        }
+        else {
+            list<pair<int, int>>::iterator list_it = it->second;
+            int ret = list_it->second;
+            put(key, ret);
+            return ret;
+        } 
+    }
+    
+    void put(int key, int value) {
+        auto it = table.find(key);
+        if (it != table.end()) {
+            data_.erase(it->second);
+        }
+        data_.push_front(make_pair(key, value));
+        table[key] = data_.begin();
+        if (table.size() > cap_) {
+            int rkey = data_.rbegin()->first;
+            data_.pop_back();
+            table.erase(rkey);
+        }
+    }
+};
+ 

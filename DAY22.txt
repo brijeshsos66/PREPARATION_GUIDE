@@ -1,0 +1,388 @@
+Day22: (Mixed Questions) 
+
+1.	Binary Tree to Double Linked List 
+Given a Binary Tree (BT), convert it to a Doubly Linked List(DLL) In-Place. The left and right pointers in nodes are to be used as previous and next pointers respectively in converted DLL. The order of nodes in DLL must be same as Inorder of the given Binary Tree. 
+The first node of Inorder traversal (left most node in BT) must be head node of the DLL.
+
+       a
+     /   \
+    b     c
+  /   \  /  \
+ d    e f    g
+
+output:
+         NULL<-- d --> b --> e --> a -->  f --> c --> g --> NULL
+                   <--   <--   <--   <--    <--   <--   
+
+#
+SOLUTION:
+---------------O(N), O(H) ------------------------
+
+void convert(Node* root, Node* head){
+  
+ //base case
+  if(!root)
+	return;
+
+  // Initialize previously visited node as NULL. This is static so that the same value is accessible in all recursive calls 
+  static Node* prev = NULL;
+
+  //left
+  convert(root->left, head);
+
+  if(prev == NULL){
+   head = root;
+  }
+  else{
+   root->left = prev;
+   prev->right = root;
+  }
+ 
+  prev = root;
+  
+  // right
+  convert(root->right, head);
+ }
+
+2.	Find median in a stream of running integers. (FIND MEDIAN FROM DATA STREAM) --> (HARD)
+Median is the middle value in an ordered integer list. If the size of the list is even, there is no middle value. So the median is the mean of the two middle value.
+
+For example,
+[2,3,4], the median is 3
+
+[2,3], the median is (2 + 3) / 2 = 2.5
+
+Design a data structure that supports the following two operations:
+
+void addNum(int num) - Add a integer number from the data stream to the data structure.
+double findMedian() - Return the median of all elements so far.
+ 
+
+Example:
+
+addNum(1)
+addNum(2)
+findMedian() -> 1.5
+addNum(3) 
+findMedian() -> 2
+ 
+
+Follow up:
+
+If all integer numbers from the stream are between 0 and 100, how would you optimize it?
+If 99% of all integer numbers from the stream are between 0 and 100, how would you optimize it?
+
+SOLUTION:
+----BRUTE FORCE ----- O(NLOGN), O(N) ------- USING THE SORTING ----
+
+class MedianFinder {
+    vector<int> store;
+public:
+    /** initialize your data structure here. */
+    MedianFinder() {
+        
+    }
+    
+    void addNum(int num) {
+        store.push_back(num);
+    }
+    
+    double findMedian() {
+        sort(store.begin(),store.end());
+        int n = store.size();
+        return (n&1 ? store[n/2] : ((double) store[n/2-1] + store[n/2])/2);
+    }
+};
+
+-------OPTIMIZED SOLUTION --------O(LOGN) , O(N) -----USING THE HEAPS I.E., IN C++ --> PRIORITY QUEUE
+
+The pseudocode for this algorithm is:
+1. First add the value to the max heap. 
+2. Then remove the top of the max heap and add it to the min heap. 
+3. Now we need to perform the balancing. 
+4. If the maxheap size is less than the min heap then remove the top of the min heap and add it to the max heap.
+The median is found by checking the size of the maxheap. 
+5. If the maxheap size is greater than the min heap size, Then the total number of elements is odd, then peek the top of the maxheap and this is the median. 
+6. If the maxheap size is equal to the min heap size, Then the total number of elements is even, then peek the top of the maxheap and peak the top of the 
+minheap add and divide it by 2, this is the median.
+-------------------------------------------------------------------------------------------------------------
+
+class MedianFinder {
+    priority_queue<int> max; // max heap
+    priority_queue<int, vector<int>, greater<int>> min; // min heap
+public:
+    /** initialize your data structure here. */
+    MedianFinder() {
+        
+    }
+    
+    void addNum(int num) {
+        max.push(num);         //1
+        min.push(max.top());   //2
+        max.pop();             //3
+        
+        if(max.size() < min.size()){   //4
+            max.push(min.top());
+            min.pop();
+        }
+    }
+    
+    double findMedian() {
+        if(max.empty())
+            return 0;
+        return max.size() > min.size()? max.top() : ((double)max.top()+min.top())/2;  // 5&6
+    }
+};
+
+
+3.	K-th largest element in a stream. 
+Design a class to find the kth largest element in a stream. Note that it is the kth largest element in the sorted order, not the kth distinct element.
+
+Your KthLargest class will have a constructor which accepts an integer k and an integer array nums, which contains initial elements from the stream. For each call to the method KthLargest.add, return the element representing the kth largest element in the stream.
+
+Example:
+
+int k = 3;
+int[] arr = [4,5,8,2];
+KthLargest kthLargest = new KthLargest(3, arr);
+kthLargest.add(3);   // returns 4
+kthLargest.add(5);   // returns 5
+kthLargest.add(10);  // returns 5
+kthLargest.add(9);   // returns 8
+kthLargest.add(4);   // returns 8
+Note:
+You may assume that nums' length ≥ k-1 and k ≥ 1.
+
+SOLUTION:
+--------OPTIMIZED -------------USING PRIORITY QUEUE -------O(NLOGN), O(K) ----------
+
+class KthLargest {
+    priority_queue<int, vector<int>, greater<int>> min; // min heap
+    int size; 
+public:
+    KthLargest(int k, vector<int>& nums) {
+        size = k;
+        for(int i=0;i<nums.size();i++){
+            min.push(nums[i]);
+            if(min.size() > k)
+                min.pop();
+        }
+    }
+    
+    int add(int val) {
+        min.push(val);
+        if(min.size() > size)
+            min.pop();
+        return min.top();
+    }
+};
+
+
+4.	Distinct numbers in Window. 
+Given an array of n integers and an integer k (k is always smaller or equal to n).  Return the count of distinct elements in all windows (or in all sub-arrays) of size k.
+
+For example –
+
+   Example 1:
+
+  Input: {1, 5, 9, 3, 3, 7, 3},   k = 3
+
+  Output: {3, 3, 2, 2, 2}
+
+1st window {1, 5, 9}, Distinct elements are 3.
+
+2nd window {5, 9, 3}, Distinct elements are 3.
+
+3rd window {9, 3, 3}, Distinct elements are 2.
+
+4th window {3, 3, 7}, Distinct elements are 2.
+
+5th window {3, 7, 3}, Distinct elements are 2.
+
+   Example 2:
+
+  Input: {1, 4, 7, 7},   k = 2
+
+  Output: {2, 2, 1}
+
+1st window {1, 4}, Distinct elements are 2.
+
+2nd window {4, 7}, Distinct elements are 2.
+
+3rd window {7, 7}, Distinct elements are 1.
+
+#
+--------BRUTE FORCE -------CHECKING AT EACH WINDOW ----O(N*K), O(N) -----------
+--------OPTIMIZED ----------O(N), O(N) ------------USING THE HASHMAP ----------------
+
+vector<int> DistinctNumbers(vector<int>& a, int k){
+  vector<int> result;
+  int n = a.size();
+  if(n == 0)
+	return result;
+  int count = 0;
+  unordered_map<int,int> m;
+  
+//for the first window
+  for(int i=0;i<k;i++){
+  if(m[a[i]] == 0){
+     count++;
+   }
+   m[a[i]]++;
+  }
+
+  result.push_back(count);
+
+  //for the rest windows
+  for(int i=k;i<n;i++){
+   
+  // checking for the previous window first element
+  if(m[a[i-k]] == 1){
+    count--;
+  }
+   m[a[i-k]]-=1;
+
+   // processing the new element or the new window last element
+  if(m[a[i]] == 0){
+    count++;
+   }
+   m[a[i]]++; 
+  
+   // storing the counter for the new window in the result
+   result.push_back(count);
+  }
+return 0;
+}
+
+
+
+5.	K-th largest element in an unsorted array. 
+Find the kth largest element in an unsorted array. Note that it is the kth largest element in the sorted order, not the kth distinct element.
+
+Example 1:
+
+Input: [3,2,1,5,6,4] and k = 2
+Output: 5
+Example 2:
+
+Input: [3,2,3,1,2,4,5,5,6] and k = 4
+Output: 4
+Note:
+You may assume k is always valid, 1 ≤ k ≤ array's length.
+#
+SOLUTION:
+-----------------O(NLOGN), O(K) ------------USING PRIORITY QUEUE --------------
+int findKthLargest(vector<int>& nums, int k) {
+        if(nums.size() == 0)
+            return 0;
+        priority_queue<int, vector<int>, greater<int>> min;
+        for(int i=0;i<nums.size();i++){
+            min.push(nums[i]);
+            if(min.size() > k)
+                min.pop();
+        }
+        return min.top();
+    }
+
+6.	Flood-fill Algorithm 
+An image is represented by a 2-D array of integers, each integer representing the pixel value of the image (from 0 to 65535).
+
+Given a coordinate (sr, sc) representing the starting pixel (row and column) of the flood fill, and a pixel value newColor, "flood fill" the image.
+
+To perform a "flood fill", consider the starting pixel, plus any pixels connected 4-directionally to the starting pixel of the same color as the starting pixel,
+plus any pixels connected 4-directionally to those pixels (also with the same color as the starting pixel), and so on. Replace the color of all of the aforementioned 
+pixels with the newColor.
+
+At the end, return the modified image.
+
+Example 1:
+Input: 
+image = [[1,1,1],[1,1,0],[1,0,1]]
+sr = 1, sc = 1, newColor = 2
+Output: [[2,2,2],[2,2,0],[2,0,1]]
+Explanation: 
+From the center of the image (with position (sr, sc) = (1, 1)), all pixels connected 
+by a path of the same color as the starting pixel are colored with the new color.
+Note the bottom corner is not colored 2, because it is not 4-directionally connected
+to the starting pixel.
+Note:
+
+The length of image and image[0] will be in the range [1, 50].
+The given starting pixel will satisfy 0 <= sr < image.length and 0 <= sc < image[0].length.
+The value of each color in image[i][j] and newColor will be an integer in [0, 65535].
+
+SOLUTION:
+--------O(N), O(N) ---------------------USING THE DFS APPROACH ---------
+
+vector<vector<int>> floodFill(vector<vector<int>>& image, int r, int c, int newColor) {
+        if(image[r][c] == newColor)
+            return image;
+        dfs(image,r,c,newColor,image[r][c]);
+        return image;
+    }
+    
+    void dfs(vector<vector<int>>& image, int r, int c, int newColor, int oldColor){
+        if(r < 0 || r >= image.size() || c < 0 || c >= image[0].size() || oldColor!=image[r][c])
+            return;
+        image[r][c] = newColor;
+        dfs(image,r+1,c,newColor,oldColor);
+        dfs(image,r-1,c,newColor,oldColor);
+        dfs(image,r,c+1,newColor,oldColor);
+        dfs(image,r,c-1,newColor,oldColor);
+    }
+
+ 7. TOP K FREQUENT ELEMENTS
+Given a non-empty array of integers, return the k most frequent elements.
+
+Example 1:
+
+Input: nums = [1,1,1,2,2,3], k = 2
+Output: [1,2]
+Example 2:
+
+Input: nums = [1], k = 1
+Output: [1]
+Note:
+
+You may assume k is always valid, 1 ≤ k ≤ number of unique elements.
+Your algorithm's time complexity must be better than O(n log n), where n is the array's size.
+It's guaranteed that the answer is unique, in other words the set of the top k frequent elements is unique.
+You can return the answer in any order.
+
+#
+
+class Solution {
+public:
+    -------------------------------o(NLOGK), O(N+K)------------------------------------------------------------
+    struct comp{
+        bool operator()(pair<int,int>& a,pair<int,int>& b){
+            return a.second > b.second;
+        }
+    };
+    vector<int> topKFrequent(vector<int>& nums, int k) {
+        if(nums.size() == k)
+            return nums;
+        unordered_map<int,int> m;
+        for(int i:nums)
+            m[i]++;
+        
+        priority_queue<pair<int,int>,vector<pair<int,int>>,comp> pq;
+        vector<int> ans;
+        for(auto i : m){
+              if(pq.size() < k){
+                pq.push(i);
+            }else{
+                  if(i.second > pq.top().second){
+                      pq.pop();
+                      pq.push(i);
+                  }
+              }
+        }
+        while(!pq.empty()){
+            ans.push_back(pq.top().first);
+            pq.pop();
+        }
+            
+        return ans;
+    }
+};

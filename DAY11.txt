@@ -1,0 +1,480 @@
+Day11: (Divide and Conquer) 
+
+1. 1/N-th root of an integer (use binary search) (square root, cube root, ..)
+(i) FINDING THE SQUARE ROOT USING THE BINARY SEARCH 
+----SOLUTION-------
+(1) WE WILL BE CALCULATING FIRST THE INTEGER PART USING BINARY SEARCH
+(2) THEN, WE WILL CALCULATE THE FRACTIONAL PART USING LINEAR SEARCH
+
+COMPLEXITY --- O(LOGN + kP)  --> k is constant , p is decimal places till which we needed the answers
+-----O(LOGN + P) == O(LOGN)
+
+--- O(LOGN), O(1) -------
+
+float squareRoot(int n, int p){
+    int s=0, e=n;
+    int mid;
+    float ans;
+    // for getting the integer part
+    while(s<=e){
+        mid = s + (e-s)/2;
+        if(mid*mid == n){
+            ans = mid;
+            break;
+        }
+        
+        if(mid*mid < n){
+            s = mid+1;
+            ans = mid;
+        }
+        else{
+            e = mid-1;
+        }
+    }
+    // for getting the fractional part
+    
+    float inc = 0.1;
+    
+    for(int i=0;i<p;i++){
+        while(ans*ans <= n){
+            ans+=inc;
+        } // it will break when the value of the squareRoot would be in points greater by (1 in decimal points)
+        ans = ans - inc;
+        inc = inc/10; // for the next decimal value
+    }
+    return ans;
+}
+int main()
+{
+    cout<<squareRoot(49,0)<<endl;
+    cout<<squareRoot(10,3)<<endl;
+    cout<<squareRoot(15,4)<<endl;
+    cout<<squareRoot(15,5)<<endl;
+    return 0;
+}
+
+(ii) FINDING THE CUBE ROOT USING THE BINARY SEARCH
+SOLUTION:
+-----O(LOGN), O(1) -------
+--- SIMILIAR TO THE SQUARE ROOT ---- Two CHANGES (i) In the integer part mid*mid == mid*mid*mid
+						 (ii) In the fractional part ans*ans == ans*ans*ans
+
+float cubeRoot(int n, int p){
+    int s=0, e=n;
+    int mid;
+    float ans;
+    // for getting the integer part
+    while(s<=e){
+        mid = s + (e-s)/2;
+        if(mid*mid*mid == n){
+            ans = mid;
+            break;
+        }
+        
+        if(mid*mid*mid < n){
+            s = mid+1;
+            ans = mid;
+        }
+        else{
+            e = mid-1;
+        }
+    }
+    // for getting the fractional part
+    
+    float inc = 0.1;
+    
+    for(int i=0;i<p;i++){
+        while(ans*ans*ans <= n){
+            ans+=inc;
+        } // it will break when the value of the squareRoot would be in points greater by (1 in decimal points)
+        ans = ans - inc;
+        inc = inc/10; // for the next decimal value
+    }
+    return ans;
+}
+int main()
+{
+    cout<<cubeRoot(8,0)<<endl;
+    cout<<cubeRoot(10,3)<<endl;
+    cout<<cubeRoot(15,4)<<endl;
+    cout<<cubeRoot(15,5)<<endl;
+    return 0;
+}
+
+2.	Matrix Median [Find median in row wise sorted matrix]
+We are given a row wise sorted matrix of size r*c, we need to find the median of the matrix given. It is assumed that r*c is always odd.
+
+Examples:
+
+Input : 1 3 5
+        2 6 9
+        3 6 9
+Output : Median is 5
+If we put all the values in a sorted 
+array A[] = 1 2 3 3 5 6 6 9 9)
+
+Input: 1 3 4
+       2 5 6
+       7 8 9
+Output: Median is 5
+
+SOLUTION: 
+----O(32*R*LOGC), O(1) -----
+
+// function to find median in the matrix 
+int binaryMedian(int m[][MAX], int r ,int c) 
+{ 
+    int min = INT_MAX, max = INT_MIN; 
+    for (int i=0; i<r; i++) 
+    { 
+        // Finding the minimum element 
+        if (m[i][0] < min) 
+            min = m[i][0]; 
+  
+        // Finding the maximum element 
+        if (m[i][c-1] > max) 
+            max = m[i][c-1]; 
+    } 
+  
+    int desired = (r * c + 1) / 2; 
+    while (min < max) 
+    { 
+        int mid = min + (max - min) / 2; 
+        int place = 0; 
+  
+        // Find count of elements smaller than mid 
+        for (int i = 0; i < r; ++i) 
+            place += upper_bound(m[i], m[i]+c, mid) - m[i]; 
+        if (place < desired) 
+            min = mid + 1; 
+        else
+            max = mid; 
+    } 
+    return min; 
+} 
+  
+3. Find the element that appears once in sorted array, and rest element appears twice (Binary search) 
+You are given a sorted array consisting of only integers where every element appears exactly twice, except for one element which appears exactly once. Find this single element that appears only once.
+Follow up: Your solution should run in O(log n) time and O(1) space.
+Example 1:
+
+Input: nums = [1,1,2,3,3,4,4,8,8]
+Output: 2
+Example 2:
+
+Input: nums = [3,3,7,7,10,11,11]
+Output: 10
+ 
+
+Constraints:
+
+1 <= nums.length <= 10^5
+0 <= nums[i] <= 10^5
+
+SOLUTION:
+----BRUTE FORCE --- O(N^2), O(1) -- FOR LOOP OVER FOR
+-------O(N), O(N) --- HASHING
+-------O(N), O(1) ----XOR
+OPTIMIZED SOLUTION:
+-----O(LOGN), O(1) -------
+
+ int singleNonDuplicate(vector<int>& nums) {
+         int high = nums.size()-1;
+        int low = 0;
+        int mid;
+        
+        //Boundary cases
+        if(high==0)
+            return nums[0];
+        else if(nums[0]!=nums[1])
+            return nums[0];
+        else if(nums[high]!=nums[high-1])
+            return nums[high];
+
+        while(low<=high)
+        {
+            mid = low + (high-low)/2;
+            //Unique element condition
+            if(nums[mid]!=nums[mid+1] && nums[mid]!=nums[mid-1])
+                return nums[mid];
+// ORDERING OF EVEN NUMBER 0,2,4 ... SO FOR PROPER ORDERING -- EVEN INDEX VALUE = ODD INDEX VALUE , THEN NO SINGLE ELEMENT IN THE LEFT SIDE -> L = MID + 1
+// ORDERING OF ODD NUMBERS 1,3,5 ... SO FOR PROPER ORDERING -- ODD INDEX VALUE = EVEN INDEX VALUE , THEN NO SINGLE ELEMENT IN THE LEFT SIDE -> L = MID - 1       
+            if(((mid%2)==0 && nums[mid]==nums[mid+1])
+               ||  ((mid%2)==1 && nums[mid]==nums[mid-1]))
+                low = mid+1;
+            else
+                high = mid-1;
+            
+        }
+        return -1;
+    }
+
+4.	Search element in a sorted and rotated array. 
+Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand.
+
+(i.e., [0,1,2,4,5,6,7] might become [4,5,6,7,0,1,2]).
+
+You are given a target value to search. If found in the array return its index, otherwise return -1.
+
+You may assume no duplicate exists in the array.
+
+Your algorithm's runtime complexity must be in the order of O(log n).
+
+Example 1:
+
+Input: nums = [4,5,6,7,0,1,2], target = 0
+Output: 4
+Example 2:
+
+Input: nums = [4,5,6,7,0,1,2], target = 3
+Output: -1
+
+SOLUTION :
+-----O(LOG N), O(1) -----
+FIRST APPROACH IS TO FIND THE PIVOT ELEMENT ( LEFT ELEMENTS  <= ELEMENT >= RIGHT ELEMENT ), THEN CHECK FOR THE
+ELEMENT IN THE LEFT SIDE OR THE RIGHT SIDE BASED UPON THE TARGET VALUE
+ ---> LEADS TO TWO TRAVERSALS --- O(2LOGN) => O(LOGN) ,O(1)
+
+--SECOND APPROACH IS OPTIMIZED: FINDING THE ELEMENT IN THE FIRST TRAVERSAL ONLY
+--- AS ONE OF THE SIDE EITHER LEFT OR RIGHT WILL BE IN THE INCREASING ORDER
+int search(vector<int>& nums, int target) {
+        if(nums.size() == 0)
+            return -1;
+        int start = 0;
+        int end = nums.size() -1;
+        int mid;
+        
+        while(start<=end){
+            mid = start + (end - start)/2;
+            if(nums[mid] == target)
+                return mid;
+            else if(nums[mid] >= nums[start]){
+                if(target >= nums[start] && target <= nums[mid])
+                    end = mid-1;
+                else
+                    start = mid+1;
+            }
+            else{
+                if(target >= nums[mid] && target <= nums[end])
+                    start = mid+1;
+                else
+                    end = mid-1;
+            }
+        }
+        return -1;
+    }
+
+(Q) Find Minimum in Rotated Sorted Array
+Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand.
+
+(i.e.,  [0,1,2,4,5,6,7] might become  [4,5,6,7,0,1,2]).
+
+Find the minimum element.
+
+You may assume no duplicate exists in the array.
+
+Example 1:
+
+Input: [3,4,5,1,2] 
+Output: 1
+Example 2:
+
+Input: [4,5,6,7,0,1,2]
+Output: 0
+#
+--------------------O(LOGN), O(1)---------------------------------
+
+ int findMin(vector<int>& nums) {
+        int n = nums.size();
+        if(n == 1)
+            return nums[0];
+        int low = 0, high = n-1;
+        if(nums[high] > nums[0])
+            return nums[0];
+        while(low<high){
+            int mid = low+(high-low)/2;
+            if(nums[mid] < nums[high])
+                high = mid;
+            else
+                low = mid+1;
+        }
+        return nums[low];
+    }
+
+(Q) FIND MINIMUM IN ROTATED SORTED ARRAY-II (HARD)
+Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand.
+
+(i.e.,  [0,1,2,4,5,6,7] might become  [4,5,6,7,0,1,2]).
+
+Find the minimum element.
+
+The array may contain duplicates.
+
+Example 1:
+
+Input: [1,3,5]
+Output: 1
+Example 2:
+
+Input: [2,2,2,0,1]
+Output: 0
+Note:
+
+This is a follow up problem to Find Minimum in Rotated Sorted Array.
+Would allow duplicates affect the run-time complexity? How and why?
+
+#
+--------------------------O(LOGN), O(1)---------------------------------------
+
+int findMin(vector<int>& nums) {
+        int low = 0, high = nums.size()-1;
+        
+        while(low<high){
+            int mid = low + (high-low)/2;
+            if(nums[mid]<nums[high])
+                high = mid;
+            else if(nums[mid]>nums[high])
+                low = mid+1;
+            else
+                high--;
+        }
+        return nums[low];
+    }
+
+
+5.	K-th element of two sorted arrays 
+Given two sorted arrays of size m and n respectively, you are tasked with finding the element that would be at the k’th position of the final sorted array.
+
+Examples:
+
+Input : Array 1 - 2 3 6 7 9
+        Array 2 - 1 4 8 10
+        k = 5
+Output : 6
+Explanation: The final sorted array would be -
+1, 2, 3, 4, 6, 7, 8, 9, 10
+The 5th element of this array is 6.
+Input : Array 1 - 100 112 256 349 770
+        Array 2 - 72 86 113 119 265 445 892
+        k = 7
+Output : 256
+Explanation: Final sorted array is -
+72, 86, 100, 112, 113, 119, 256, 265, 349, 445, 770, 892
+7th element of this array is 256.
+
+SOLUTION:
+------O(M+N), O(M+N) -------
+int kth(int arr1[], int arr2[], int m, int n, int k) 
+{ 
+    int sorted1[m + n]; 
+    int i = 0, j = 0, d = 0; 
+    while (i < m && j < n) 
+    { 
+        if (arr1[i] < arr2[j]) 
+            sorted1[d++] = arr1[i++]; 
+        else
+            sorted1[d++] = arr2[j++]; 
+    } 
+    while (i < m) 
+        sorted1[d++] = arr1[i++]; 
+    while (j < n) 
+        sorted1[d++] = arr2[j++]; 
+    return sorted1[k - 1]; 
+} 
+  
+int main() 
+{ 
+    int arr1[5] = {2, 3, 6, 7, 9}; 
+    int arr2[4] = {1, 4, 8, 10}; 
+    int k = 5; 
+    cout << kth(arr1, arr2, 5, 4, k); 
+    return 0; 
+}  
+
+-------O(K) , O(1) -------
+int find(int A[], int B[], int m,  
+         int n, int k_req)  
+{ 
+    int k = 0, i = 0, j = 0; 
+  
+    // Keep taking smaller of the current 
+    // elements of two sorted arrays and 
+    // keep incrementing k 
+    while(i < m && j < n) 
+    { 
+        if(A[i] < B[j])  
+        { 
+            k++; 
+            if(k == k_req) 
+                return A[i]; 
+            i++; 
+        }  
+        else
+        { 
+            k++; 
+            if(k == k_req) 
+                return B[j]; 
+            j++; 
+        } 
+    } 
+  
+    // If array B[] is completely traversed 
+    while(i < m)  
+    { 
+        k++; 
+        if(k == k_req) 
+            return A[i]; 
+        i++; 
+    } 
+  
+    // If array A[] is completely traversed 
+    while(j < n)  
+    { 
+        k++; 
+        if(k == k_req) 
+            return B[j]; 
+        j++; 
+    } 
+}  
+  
+// Driver Code 
+int main() 
+{ 
+    int A[5] = { 2, 3, 6, 7, 9 }; 
+    int B[4] = { 1, 4, 8, 10 }; 
+    int k = 5; 
+      
+    cout << find(A, B, 5, 4, k); 
+      
+    return 0; 
+}  
+
+ONE MORE OF LOGK, PARR SAMAJ NI AAYI
+
+6.	Median of an array   
+  
+mean and median of an array 
+---- mean (o(n)) and median o(nlogn)----
+
+// Function for calculating mean 
+double findMean(int a[], int n) 
+{ 
+    int sum = 0; 
+    for (int i = 0; i < n; i++)  
+        sum += a[i]; 
+      
+    return (double)sum/(double)n; 
+} 
+  
+// Function for calculating median 
+double findMedian(int a[], int n) 
+{ 
+    // First we sort the array 
+    sort(a, a+n); 
+  
+    // check for odd case 
+    if (n % 2 != 0) 
+       return (double)a[n/2]; 
+      
+    return (double)(a[(n-1)/2] + a[n/2])/2.0; 
+} 
